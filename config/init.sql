@@ -100,6 +100,7 @@ create table classements_personnels_vins_rouges (
     id_classements_personnels_vins_rouges int primary key auto_increment,
     id_vins_rouges int not null,
     id_membres int not null,
+    classements_personnels_vins_rouges int not null,
     constraint vroucp1 foreign key (id_vins_rouges) references vins_rouges(id_vins_rouges) on delete cascade,
     constraint vroucp2 foreign key (id_membres) references membres(id_membres) on delete cascade
 );
@@ -108,6 +109,7 @@ create table classements_personnels_vins_blancs (
     id_classements_personnels_vins_blancs int primary key auto_increment,
     id_vins_blancs int not null,
     id_membres int not null,
+    classements_personnels_vins_blancs int not null,
     constraint vblacp1 foreign key (id_vins_blancs) references vins_blancs(id_vins_blancs) on delete cascade,
     constraint vblacp2 foreign key (id_membres) references membres(id_membres) on delete cascade
 );
@@ -116,6 +118,7 @@ create table classements_personnels_vins_roses (
     id_classements_personnels_vins_roses int primary key auto_increment,
     id_vins_roses int not null,
     id_membres int not null,
+    classements_personnels_vins_roses int not null,
     constraint vroscp1 foreign key (id_vins_roses) references vins_roses(id_vins_roses) on delete cascade,
     constraint vroscp2 foreign key (id_membres) references membres(id_membres) on delete cascade
 );
