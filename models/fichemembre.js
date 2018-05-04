@@ -15,11 +15,35 @@ class FicheMembre {
     }
 
     // Méthodes statiques
-    static addMembre(email, psw) {
-        connection.query('inser into membres set email = ?, password = ?', [email, psw], (err, res) => {
+    static addMembre(email, psw, cb) {
+
+        connection.query('select * from membres where email like ?;', email, (err, rows) => {
             if (err) throw err
-            cb(res)
+            if (rows.length > 0) {
+                cb("membre déjà existant")
+            }
+            else
+            {
+                connection.query('insert into membres set email = ?, password = ?', [email, psw], (err, res) => {
+                    if (err) throw err
+                    cb("")
+                })
+            }
         })
+    }
+
+    static validerFormulaireCreationCompte(email1, email2, psw1, psw2, cb) {
+        let email = false
+        let psw = false
+
+        if (email1 === email2) {
+            email = true
+        }
+
+        if (psw1 === psw2) {
+            psw = true
+        }
+        cb(email, psw)
     }
 
 }
