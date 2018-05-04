@@ -37,9 +37,38 @@ class FicheVin {
     }
 
     get classement_general() {
-        return this.classement_general
+        return this.row.classement_general
     }
 
+    get cepages() {
+        let listeCepages = []
+        connection.query(`select cepages.nom from cepages
+        join vins_has_cepages on vins_has_cepages.id_cepages and cepages.id_cepages
+        join vins on vins_has_cepages.id_vins and vins.id_vins
+        where vins.couleur like ? and vins.id_vins = ?;`, [this.row.couleur, this.row.id_vins], (err, rows) => {
+            if (err) throw err
+            for (let row of rows) {
+                listeCepages.push(row)
+            }
+        })
+        return listeCepages
+    }
+
+    get vignerons() {
+        let listeVignerons = []
+        connection.query(`select vignerons.nom from vignerons
+        join vins_has_vignerons on vins_has_vignerons.id_vignerons and vignerons.id_vignerons
+        join vins on vins_has_vignerons.id_vins and vins.id_vins
+        where vins.couleur like ? and vins.id_vins = ?;`, [this.row.couleur, this.row.id_vins], (err, rows) => {
+            if (err) throw err
+            for (let row of rows) {
+                listeVignerons.push(row)
+            }
+        })
+        return listeVignerons
+    }
+
+    // Méthodes statiques concernant des listes
     static getAllClassementPersonnel(couleur, id_membres, cb) {
         connection.query(`select vins.id_vins, vins.nom, millesime, vins.date_consommation, vins.etiquette, vins.commentaire_personnel, vins.classement_general from vins 
         join classements_personnels_vins on vins.id_vins and classements_personnels_vins.id_classements_personnels_vins
