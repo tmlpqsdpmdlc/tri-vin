@@ -2,6 +2,12 @@
 
 <h1>Créer son compte</h1>
 
+<% if (locals.flash && locals.flash.errorCreation) { %>
+    <div class="ui negative message">
+        <%= flash.errorCreation %>
+    </div>
+<% } %>
+
 <form action="/creationcompte" method="post" class="ui form">
 
     <div class="field">
