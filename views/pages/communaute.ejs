@@ -1,11 +1,53 @@
 <% include header %>
 
+<h1>Créer son compte</h1>
+
+<form action="/communaute" method="post" class="ui form">
+
+    <div class="field">
+        <label for="email1">Saisissez votre email</label>
+        <input type="text" name="email1" id="email1"placeholder="Saisissez votre email" />
+    </div>
+
+    <div class="field">
+        <label for="email2">Confirmez votre email</label>
+        <input type="text" name="email2" id="email2"placeholder="Confirmez votre email" />
+    </div>
+
+    <div class="field">
+        <label for="psw1">Saisissez votre mot de passe</label>
+        <input type="password" name="psw1" id="psw1"placeholder="Saisissez votre mot de passe" />
+    </div>
+
+    <div class="field">
+        <label for="psw2">Confirmez votre mot de passe</label>
+        <input type="password" name="psw2" id="psw2"placeholder="Confirmez votre mot de passe" />
+    </div>
+
+    <button type="submit"class="ui blue labeled submit icon button">
+        <i class="icon save outline"></i>S'inscrire
+    </button>
+</form>
 
 
+<h1>Se connecter</h1>
 
-<h1>Ceci est la page communauté</h1>
+<form action="/communaute" method="post" class="ui form">
 
+    <div class="field">
+        <label for="email">Saisissez votre email</label>
+        <input type="text" name="email" id="email" placeholder="Saisissez votre email"/>
+    </div>
 
+    <div class="field">
+        <label for="psw">Saisissez votre mot de passe</label>
+        <input type="password" name="psw" id="psw" placeholder="Saisissez votre mot de passe"/>
+    </div>
+
+    <button type="submit"class="ui blue labeled submit icon button">
+        <i class="icon play"></i>Se connecter
+    </button>
+</form>
 
 
 <% include footer %>
