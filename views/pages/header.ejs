@@ -16,7 +16,11 @@
 <div class="ui fixed inverted menu">
     <a href="/" class="header item">Accueil</a>
     <a href="/classement-personnel" class="header item">Classement personnel</a>
-    <a href="/communaute" class="header item">Communauté</a>
+    <% if(!locals.cnx) { %> 
+        <a href="/communaute" class="header item">Communauté</a>
+    <% } else { %>
+        <a href="/deconnexion" class="header item">Déconnexion</a>
+    <% } %>
 </div>
 
 <div class="ui main container">

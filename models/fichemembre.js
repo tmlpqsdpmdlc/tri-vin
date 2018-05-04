@@ -46,6 +46,19 @@ class FicheMembre {
         cb(email, psw)
     }
 
+    static connexion(email, psw, cb) {
+        connection.query('select * from membres where email like ? and password like ?', [email, psw], (err, rows) => {
+            if (err) throw err
+            if(rows.length !== 1) {
+                cb("Erreur")
+            }
+            else
+            {
+                cb(rows[0].id_membres)
+            }
+        })
+    }
+
 }
 
 module.exports = FicheMembre

@@ -36,6 +36,43 @@ app.get('/creationcompte', (request, response) => {
     response.render('pages/creationcompte', {titre: "Compte créée"})
 })
 
+app.get('/connexion', (request, response) => {
+    response.render('pages/connexion', {titre: "Utilisateur connecté"})
+})
+
+app.get('/deconnexion', (request, response) => {
+    request.cnx(0,0)
+    response.render('pages/deconnexion', {titre: "Utilisateur déconnecté"})
+})
+
+app.post('/connexion', (request, response) => {
+    // On doit vérifier si l'utilisateur se connecte bien 
+    if (request.body.email === undefined || 
+        request.body.email === '' || 
+        request.body.psw === undefined ||
+        request.body.psw === ''
+    )
+    {
+        request.flash("erreurConnexion", "Veuillez saisir un email et un mot de passe pour vous connecter")
+        response.redirect('/communaute')
+    }
+    else
+    {
+        let ficheMembre = require('./models/fichemembre')
+        ficheMembre.connexion(request.body.email, request.body.psw, (retour) => {
+            if (retour !== "Erreur") {
+                request.cnx(1, retour)
+                response.redirect('/connexion')
+            }
+            else
+            {
+                request.flash("erreurConnexion", "Erreur lors de la connexion, veuillez vérifier vos identifiants.")
+                response.redirect('/communaute')
+            }
+        })
+    }   
+})
+
 app.post('/creationcompte', (request, response) => {
     if (request.body.email1 === undefined ||
         request.body.email1 === '' ||

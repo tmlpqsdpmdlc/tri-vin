@@ -38,7 +38,13 @@
 
 <h1>Se connecter</h1>
 
-<form action="/communaute" method="post" class="ui form">
+<% if (locals.flash && locals.flash.erreurConnexion) { %>
+    <div class="ui negative message">
+        <%= flash.erreurConnexion %>
+    </div>
+<% } %>
+
+<form action="/connexion" method="post" class="ui form">
 
     <div class="field">
         <label for="email">Saisissez votre email</label>
