@@ -71,7 +71,7 @@ class FicheVin {
     // Méthodes statiques concernant des listes
     static getAllClassementPersonnel(couleur, id_membres, cb) {
         connection.query(`select vins.id_vins, vins.nom, millesime, vins.date_consommation, vins.etiquette, vins.commentaire_personnel, vins.classement_general from vins 
-        join classements_personnels_vins on vins.id_vins and classements_personnels_vins.id_classements_personnels_vins
+        join classements_personnels_vins on vins.id_vins and classements_personnels_vins.id_vins
         where vins.couleur like ? and classements_personnels_vins.id_membres = ?
         order by classements_personnels_vins.classement_personnel_vins;`, [couleur, id_membres], (err, rows) => {
             if (err) throw err
