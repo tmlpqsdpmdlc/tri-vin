@@ -25,7 +25,7 @@ class FicheVin {
     }
 
     get date_consommation() {
-        return this.row.date_consommation
+        return moment(this.row.date_consommation)
     }
 
     get etiquette() {
