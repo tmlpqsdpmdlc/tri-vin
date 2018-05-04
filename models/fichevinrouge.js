@@ -2,14 +2,14 @@ let connection = require('../config/db')
 let moment = require('moment')
 moment.locale('fr')
 
-class FicheVinRouge {
+class FicheVin {
 
     constructor(row) {
         this.row = row
     }
 
-    get id_vins_rouges() {
-        return this.row.id_vins_rouges
+    get id_vins() {
+        return this.row.id_vins
     }
 
     get nom() {
@@ -18,6 +18,10 @@ class FicheVinRouge {
 
     get millesime() {
         return this.row.millesime
+    }
+
+    get couleur() {
+        return this.row.couleur
     }
 
     get date_consommation() {
@@ -36,21 +40,21 @@ class FicheVinRouge {
         return this.classement_general
     }
 
-    static getAllClassementPersonnelVinsRouges(id_membres, cb) {
-        connection.query(`select vins_rouges.id_vins_rouges, vins_rouges.nom, millesime, vins_rouges.date_consommation, vins_rouges.etiquette, vins_rouges.commentaire_personnel, vins_rouges.classement_general from vins_rouges 
-        join classements_personnels_vins_rouges on vins_rouges.id_vins_rouges and classements_personnels_vins_rouges.id_classements_personnels_vins_rouges
-        where classements_personnels_vins_rouges.id_membres = ?
-        order by classements_personnels_vins_rouges.classement_personnel_vins_rouges;`, [id_membres], (err, rows) => {
+    static getAllClassementPersonnel(couleur, id_membres, cb) {
+        connection.query(`select vins.id_vins, vins.nom, millesime, vins.date_consommation, vins.etiquette, vins.commentaire_personnel, vins.classement_general from vins 
+        join classements_personnels_vins on vins.id_vins and classements_personnels_vins.id_classements_personnels_vins
+        where vins.couleur like ? and classements_personnels_vins.id_membres = ?
+        order by classements_personnels_vins.classement_personnel_vins;`, [couleur, id_membres], (err, rows) => {
             if (err) throw err
-            cb(rows.map((row) => new FicheVinRouge(row)))
+            cb(rows.map((row) => new FicheVin(row)))
         })
     }
 
-    static getAllClassementGeneralVinsRouges(cb)
+    static getAllClassementGeneral(couleur, cb)
     {
-        connection.query('select * from vins_rouges order by classement_general', (err, rows) => {
+        connection.query('select * from vins where couleur like ? order by classement_general', [couleur], (err, rows) => {
             if (err) throw err
-            cb(rows.map((row) => new FicheVinRouge(row)))
+            cb(rows.map((row) => new FicheVin(row)))
         })
     }
 }
