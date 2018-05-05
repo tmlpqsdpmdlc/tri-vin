@@ -18,6 +18,26 @@ create table cepages (
     nom varchar(255) not null
 );
 
+insert into cepages (nom) values 
+('Chardonnay'),
+('Sauvignon'),
+('Viognier'),
+('Riesling'),
+('Chenin'),
+('Sémillon'),
+('Muscat à petits grains'),
+('Gewûrztraminer'),
+('Pinot noir'),
+('Cabernet franc'),
+('Cabernet sauvignon'),
+('Syrah'),
+('Grenache'),
+('Merlot'),
+('Carignan'),
+('Cinsaut'),
+('Gamay'),
+('Côt');
+
 create table vins_has_cepages (
     id_vins_has_cepages int primary key auto_increment,
     id_vins int not null,
