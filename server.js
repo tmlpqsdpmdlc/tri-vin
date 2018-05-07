@@ -2,6 +2,7 @@ let express = require('express')
 let app = require('express')()
 let bodyParser = require('body-parser')
 let session = require('express-session')
+let formidable = require('formidable')
 
 // Moteur de template
 app.set('view engine', 'ejs')
@@ -26,6 +27,44 @@ app.get('/', (request, response) => {
 
 app.get('/classement-personnel', (request, response) => { 
     response.render('pages/classement-personnel', {titre: "classement personnel"})
+})
+
+app.post('/classement-personnel', (request, response) => { 
+
+
+    // Dans ce cas, il faut vérifier que les éléménts soient biens remplis avant de faire des traitements
+    
+    let form = new formidable.IncomingForm()
+    form.parse(request)
+
+    form.on('fileBegin', (name, file) => {
+        if(file.size !== 0)
+        {
+            file.path = __dirname + '/uploads/' + file.name
+        }
+    })
+
+    form.on('file', (name, file) => {
+        console.log('Uploaded ' + file.name)
+    })
+
+    form.on('field', function(name, value) {
+        console.log('name', name)
+        console.log('value', value)
+    })
+
+    form.on('error', function(err) {
+        console.log(err)
+        throw err
+    })
+
+    form.on('aborted', function() {
+        console.log('upload arrêté par à l\initiative de l\'utilisateur')
+    })
+
+    form.on('end', function() {
+        response.redirect('/classement-personnel')
+    })
 })
 
 app.get('/communaute', (request, response) => { 
