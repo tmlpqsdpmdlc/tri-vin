@@ -95,36 +95,54 @@ class FicheVin {
     //     return listeVignerons
     // }
 
-    static insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette) {
-        console.log('insertion vin en bdd')
-        connection.query('insert into vins set nom = ?, millesime = ?, couleur = ?, date_consommation = ?, commentaire_personnel = ?, etiquette = ?', [nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette], (err, res) => {
-            if (err) throw err
+    static insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, cb) {
+        console.log('insertionVin')
+        connection.query('insert into vins set nom = ?, millesime = ?, couleur = ?, date_consommation = ?, commentaire_personnel = ?, etiquette = ?', [nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette], (error, result, fields) => {
+            if (error) throw error
+            cb(result.insertId)
         })
     }
 
-
-
-
-
-
-    // Méthodes statiques concernant des listes
-    static getAllClassementPersonnel(couleur, id_membres, cb) {
-        connection.query(`select vins.id_vins, vins.nom, millesime, vins.date_consommation, vins.etiquette, vins.commentaire_personnel, vins.classement_general from vins 
-        join classements_personnels_vins on vins.id_vins and classements_personnels_vins.id_vins
-        where vins.couleur like ? and classements_personnels_vins.id_membres = ?
-        order by classements_personnels_vins.classement_personnel_vins;`, [couleur, id_membres], (err, rows) => {
-            if (err) throw err
-            cb(rows.map((row) => new FicheVin(row)))
+    static modifierValeurEtiquette(id_vins, etiquette) {
+        console.log('modifierValeurEtiquette')
+        connection.query('update vins set etiquette = ? where id_vins = ?', [etiquette, id_vins], (error, result, fields) => {
+            if (error) throw error
         })
     }
 
-    static getAllClassementGeneral(couleur, cb)
-    {
-        connection.query('select * from vins where couleur like ? order by classement_general', [couleur], (err, rows) => {
-            if (err) throw err
-            cb(rows.map((row) => new FicheVin(row)))
+    
+    static checkIfAlreadyExists(nom, millesime, couleur, cb) {
+        console.log('checkIfAlreadyExists')
+        connection.query('select * from vins where nom like ? and millesime like ? and couleur like ?', [nom, millesime, couleur], (error, result, fields) => {
+            if (error) throw error
+            if (result.length >= 1 )
+            {
+                cb('true')
+            }
+            else
+            {
+                cb('false')
+            }
         })
     }
+
+    // static getAllClassementPersonnel(couleur, id_membres, cb) {
+    //     connection.query(`select vins.id_vins, vins.nom, millesime, vins.date_consommation, vins.etiquette, vins.commentaire_personnel, vins.classement_general from vins 
+    //     join classements_personnels_vins on vins.id_vins and classements_personnels_vins.id_vins
+    //     where vins.couleur like ? and classements_personnels_vins.id_membres = ?
+    //     order by classements_personnels_vins.classement_personnel_vins;`, [couleur, id_membres], (err, rows) => {
+    //         if (err) throw err
+    //         cb(rows.map((row) => new FicheVin(row)))
+    //     })
+    // }
+
+    // static getAllClassementGeneral(couleur, cb)
+    // {
+    //     connection.query('select * from vins where couleur like ? order by classement_general', [couleur], (err, rows) => {
+    //         if (err) throw err
+    //         cb(rows.map((row) => new FicheVin(row)))
+    //     })
+    // }
 }
 
 module.exports = FicheVin
