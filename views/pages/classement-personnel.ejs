@@ -1,15 +1,25 @@
 <% include header %>
 
-<% if(insertId) { %>
-    <p>Ceci est l'id inséré: <%= insertId %></p>
-<% } %>
-
-
 <h1>Ceci est la page classement personnel</h1>
 
+<% if(insertId) { %>
+    <p>Ceci est l'id inséré: <%= insertId %></p>
+<% }
+else
+{ %>
+    <a href="/insertion-vin">Insérer un vin à ce classement</a>
+<% } %>
 
+<div class="ui three item menu">
+    <a class="item tabSousMenu">Vins rouges</a>
+    <a class="item tabSousMenu">Vins blancs</a>
+    <a class="item tabSousMenu active">Vins rosés</a>
+</div>
 
+<div>
+    <h2>Affichage de la liste des vins rosés</h2>
+</div>
 
-
+<script src="/assets/js/classement-personnel.js"></script>
 
 <% include footer %>
