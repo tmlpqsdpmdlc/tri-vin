@@ -30,18 +30,24 @@ app.get('/classement-personnel', (request, response) => {
 })
 
 app.post('/classement-personnel', (request, response) => { 
-
-
-    // Dans ce cas, il faut vérifier que les éléménts soient biens remplis avant de faire des traitements
     
+})
+
+app.get('/insertion-vin', (request, response) => {
+    response.render('pages/insertion-vin', {titre: 'insertion vin'})
+})
+
+app.post('/insertion-vin', (request, response) => {
+    let ficheVin = require('./models/fichevin')
+    let vin = {}
     let form = new formidable.IncomingForm()
+    let etiquette = ''
     form.parse(request)
 
+
     form.on('fileBegin', (name, file) => {
-        if(file.size !== 0)
-        {
-            file.path = __dirname + '/uploads/' + file.name
-        }
+        file.path = __dirname + '/public/images/' + "yolo.png"
+        etiquette = file.path
     })
 
     form.on('file', (name, file) => {
@@ -49,8 +55,7 @@ app.post('/classement-personnel', (request, response) => {
     })
 
     form.on('field', function(name, value) {
-        console.log('name', name)
-        console.log('value', value)
+        vin[name] = value
     })
 
     form.on('error', function(err) {
@@ -63,7 +68,8 @@ app.post('/classement-personnel', (request, response) => {
     })
 
     form.on('end', function() {
-        response.redirect('/classement-personnel')
+        ficheVin.insertionVin(vin.nom, vin.millesime, vin.couleur, vin.date_consommation, vin.commentaire_personnel, etiquette)
+        response.redirect('/insertion-vin')
     })
 })
 

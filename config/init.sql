@@ -7,7 +7,7 @@ create table vins (
     nom varchar(255) not null,
     millesime varchar(4) not null,
     couleur varchar(5) not null,
-    date_consommation datetime,
+    date_consommation datetime not null,
     etiquette text, 
     commentaire_personnel text,
     classement_general int

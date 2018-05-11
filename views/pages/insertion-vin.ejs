@@ -1,0 +1,78 @@
+<% include header %>
+
+<h1>Ceci est la page d'insertion de vin</h1>
+
+<form method="post" enctype="multipart/form-data" action="/insertion-vin" class="ui form" id="insertion-vin">
+
+    <div class="required field">
+        <label for="nom">Nom</label>
+        <input type="text" name="nom" id="nom" placeholder="Nom">
+    </div>
+
+    <div class="required field">
+        <label for="millesime">Millésime</label>
+        <input type="number" name="millesime" id="millesime" placeholder="Millésime" pattern=".{4}">
+    </div>
+    
+    <div class="required field">
+        <label for="couleur">Couleur</label>
+        <select id="couleur" name="couleur">
+            <option value="rouge">Rouge</option>
+            <option value="blanc">Blanc</option>
+            <option value="rose">Rosé</option>
+        </select>
+    </div>
+
+    <div class="required field">
+        <label for="date_consommation">Date de consommation</label>
+        <input type="date" name="date_consommation" id="date_consommation" min='1800-01-01'>
+    </div>
+
+    <div class="required field">
+        <label for="etiquette">Image de l'étiquette</label>
+        <input type="file" accept="image/*" id="etiquette" name="etiquette" onchange="loadFile(event)">
+    </div>
+
+    <img id="displayImage" style="display: none;">
+
+    <div class="field">
+        <label for="commentaire_personnel">Commentaires personnels</label>
+        <textarea name="commentaire_personnel" id="commentaire_personnel"></textarea>
+    </div>
+    
+</form>
+
+<button class="ui blue labeled submit icon button" style="margin-top: 20px;" onclick="validerFormulaire()">
+    <i class="icon save outline"></i>Enregistrer ce vin
+</button>
+
+<script>
+    // Gestion de la date max de l'input de date
+    var today = new Date()
+    var dd = today.getDate()
+    var mm = today.getMonth()+1
+    var yyyy = today.getFullYear()
+    if (dd<10)
+    {
+        dd='0'+dd
+    } 
+    if (mm<10)
+    {
+        mm='0'+mm
+    } 
+
+    today = yyyy+'-'+mm+'-'+dd
+    document.getElementById("date_consommation").setAttribute("max", today)
+
+    // Affichage de l'image que l'utilisateur a chargé
+    var loadFile = (event) => {
+        var displayImage = document.getElementById("displayImage")
+        displayImage.src = URL.createObjectURL(event.target.files[0])
+        displayImage.style = "width: 120px; height: 160px; display: block;"
+        document.getElementById("lien_image").value = displayImage.src
+    }
+
+</script>
+<script src="/assets/js/validerFormulaire.js"></script>
+
+<% include footer %>

@@ -4,69 +4,108 @@ moment.locale('fr')
 
 class FicheVin {
 
-    constructor(row) {
-        this.row = row
+    constructor() {
     }
 
     get id_vins() {
-        return this.row.id_vins
+        return this.id_vins
     }
 
     get nom() {
-        return this.row.nom
+        return this.nom
+    }
+
+    set nom(nom) {
+        this.nom = nom
     }
 
     get millesime() {
-        return this.row.millesime
+        return this.millesime
+    }
+
+    set millesime(millesime) {
+        this.millesime = millesime
     }
 
     get couleur() {
-        return this.row.couleur
+        return this.couleur
+    }
+
+    set couleur(couleur) {
+        this.couleur = couleur
     }
 
     get date_consommation() {
-        return moment(this.row.date_consommation)
+        return moment(this.date_consommation)
+    }
+
+    set date_consommation(date_consommation) {
+        this.date_consommation = date_consommation
     }
 
     get etiquette() {
-        return this.row.etiquette
+        return this.etiquette
+    }
+
+    set etiquette(etiquette) {
+        this.etiquette = etiquette
     }
 
     get commentaire_personnel() {
-        return this.row.commentaire_personnel
+        return this.commentaire_personnel
+    }
+
+    set commentaire_personnel(commentaire_personnel) {
+        this.commentaire_personnel = commentaire_personnel
     }
 
     get classement_general() {
-        return this.row.classement_general
+        return this.classement_general
     }
 
-    get cepages() {
-        let listeCepages = []
-        connection.query(`select cepages.nom from cepages
-        join vins_has_cepages on vins_has_cepages.id_cepages and cepages.id_cepages
-        join vins on vins_has_cepages.id_vins and vins.id_vins
-        where vins.couleur like ? and vins.id_vins = ?;`, [this.row.couleur, this.row.id_vins], (err, rows) => {
-            if (err) throw err
-            for (let row of rows) {
-                listeCepages.push(row)
-            }
-        })
-        return listeCepages
+    set classement_general(classement_general) {
+        this.classement_general = classement_general
     }
 
-    get vignerons() {
-        let listeVignerons = []
-        connection.query(`select vignerons.nom from vignerons
-        join vins_has_vignerons on vins_has_vignerons.id_vignerons and vignerons.id_vignerons
-        join vins on vins_has_vignerons.id_vins and vins.id_vins
-        where vins.couleur like ? and vins.id_vins = ?;`, [this.row.couleur, this.row.id_vins], (err, rows) => {
+    // get cepages() {
+    //     let listeCepages = []
+    //     connection.query(`select cepages.nom from cepages
+    //     join vins_has_cepages on vins_has_cepages.id_cepages and cepages.id_cepages
+    //     join vins on vins_has_cepages.id_vins and vins.id_vins
+    //     where vins.couleur like ? and vins.id_vins = ?;`, [this.couleur, this.id_vins], (err, rows) => {
+    //         if (err) throw err
+    //         for (let row of rows) {
+    //             listeCepages.push(row)
+    //         }
+    //     })
+    //     return listeCepages
+    // }
+
+    // get vignerons() {
+    //     let listeVignerons = []
+    //     connection.query(`select vignerons.nom from vignerons
+    //     join vins_has_vignerons on vins_has_vignerons.id_vignerons and vignerons.id_vignerons
+    //     join vins on vins_has_vignerons.id_vins and vins.id_vins
+    //     where vins.couleur like ? and vins.id_vins = ?;`, [this.couleur, this.id_vins], (err, rows) => {
+    //         if (err) throw err
+    //         for (let row of rows) {
+    //             listeVignerons.push(row)
+    //         }
+    //     })
+    //     return listeVignerons
+    // }
+
+    static insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette) {
+        console.log('insertion vin en bdd')
+        connection.query('insert into vins set nom = ?, millesime = ?, couleur = ?, date_consommation = ?, commentaire_personnel = ?, etiquette = ?', [nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette], (err, res) => {
             if (err) throw err
-            for (let row of rows) {
-                listeVignerons.push(row)
-            }
         })
-        return listeVignerons
     }
+
+
+
+
+
 
     // Méthodes statiques concernant des listes
     static getAllClassementPersonnel(couleur, id_membres, cb) {
