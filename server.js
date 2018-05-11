@@ -2,7 +2,6 @@ let express = require('express')
 let app = require('express')()
 let bodyParser = require('body-parser')
 let session = require('express-session')
-let formidable = require('formidable')
 
 // Moteur de template
 app.set('view engine', 'ejs')
@@ -38,39 +37,7 @@ app.get('/insertion-vin', (request, response) => {
 })
 
 app.post('/insertion-vin', (request, response) => {
-    let ficheVin = require('./models/fichevin')
-    let vin = {}
-    let form = new formidable.IncomingForm()
-    let etiquette = ''
-    form.parse(request)
-
-
-    form.on('fileBegin', (name, file) => {
-        file.path = __dirname + '/public/images/' + "yolo.png"
-        etiquette = file.path
-    })
-
-    form.on('file', (name, file) => {
-        console.log('Uploaded ' + file.name)
-    })
-
-    form.on('field', function(name, value) {
-        vin[name] = value
-    })
-
-    form.on('error', function(err) {
-        console.log(err)
-        throw err
-    })
-
-    form.on('aborted', function() {
-        console.log('upload arrêté par à l\initiative de l\'utilisateur')
-    })
-
-    form.on('end', function() {
-        ficheVin.insertionVin(vin.nom, vin.millesime, vin.couleur, vin.date_consommation, vin.commentaire_personnel, etiquette)
-        response.redirect('/insertion-vin')
-    })
+    
 })
 
 app.get('/communaute', (request, response) => { 
