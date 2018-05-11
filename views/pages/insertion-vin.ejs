@@ -2,6 +2,12 @@
 
 <h1>Ceci est la page d'insertion de vin</h1>
 
+<% if (locals.flash && locals.flash.erreurInsertion) { %>
+    <div class="ui negative message">
+        <%= flash.erreurInsertion %>
+    </div>
+<% } %>
+
 <form method="post" enctype="multipart/form-data" action="/insertion-vin" class="ui form" id="insertion-vin">
 
     <div class="required field">

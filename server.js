@@ -2,6 +2,8 @@ let express = require('express')
 let app = require('express')()
 let bodyParser = require('body-parser')
 let session = require('express-session')
+let fileUpload = require('express-fileupload')
+let path = require('path')
 
 // Moteur de template
 app.set('view engine', 'ejs')
@@ -18,6 +20,7 @@ app.use(session({
     cookie: { secure: false }
   }))
   app.use(require('./middlewares/flash'))
+  app.use(fileUpload())
 
 // Routes
 app.get('/', (request, response) => { 
@@ -25,18 +28,53 @@ app.get('/', (request, response) => {
 })
 
 app.get('/classement-personnel', (request, response) => { 
-    response.render('pages/classement-personnel', {titre: "classement personnel"})
+    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: false})
 })
 
-app.post('/classement-personnel', (request, response) => { 
+// app.post('/classement-personnel', (request, response) => { 
     
-})
+// })
 
 app.get('/insertion-vin', (request, response) => {
     response.render('pages/insertion-vin', {titre: 'insertion vin'})
 })
 
 app.post('/insertion-vin', (request, response) => {
+    // on enregistre les valeurs reçues du formulaire
+    let nom = request.body.nom
+    let millesime = request.body.millesime
+    let couleur = request.body.couleur
+    let date_consommation = request.body.date_consommation
+    let commentaire_personnel = request.body.commentaire_personnel
+
+    // on vérifie que ce vin n'est pas déjà dans la base
+    let ficheVin = require('./models/fichevin')
+    ficheVin.checkIfAlreadyExists(nom, millesime, couleur, (checkIfAlreadyExists) => {
+        if (checkIfAlreadyExists === 'true')
+        {
+            request.flash("erreurInsertion", "Ce vin est déjà dans la base")
+            response.redirect('/insertion-vin')
+        }
+        else
+        {
+            // on enregistre les valeurs dans la bases
+            ficheVin.insertionVin(nom, millesime, couleur, date_consommation, __dirname + '/public/images/empty.png', commentaire_personnel, (insertId) => {
+                //  on récupère l'id du vin et on nommera la photo comme ça
+                let etiquette = __dirname + '/public/images/' + insertId + path.extname(request.files.etiquette.name)
+                // on sauvegarde la photo avec ce nom
+                request.files.etiquette.mv(etiquette, (erreur) => {
+                    if (erreur) throw erreur
+                    // on update la valeur du nom de la photo dans la bdd
+                    ficheVin.modifierValeurEtiquette(insertId, etiquette)
+                    // on dirige vers la page de classement personnel avec le numéro de l'id du vin à insérer
+                    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: insertId})
+                })
+            })
+        }
+    })
+    
+    
+    
     
 })
 
