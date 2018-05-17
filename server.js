@@ -28,7 +28,7 @@ app.get('/', (request, response) => {
 })
 
 app.get('/classement-personnel', (request, response) => { 
-    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: false})
+    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: false, couleur: false})
 })
 
 // app.post('/classement-personnel', (request, response) => { 
@@ -67,7 +67,7 @@ app.post('/insertion-vin', (request, response) => {
                     // on update la valeur du nom de la photo dans la bdd
                     ficheVin.modifierValeurEtiquette(insertId, etiquette)
                     // on dirige vers la page de classement personnel avec le numéro de l'id du vin à insérer
-                    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: insertId})
+                    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: insertId, couleur: couleur})
                 })
             })
         }
