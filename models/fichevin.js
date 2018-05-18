@@ -127,8 +127,9 @@ class FicheVin {
     }
 
     // Faire la liste de tous les vins de cette couleur: 0 rouge, 1 blanc, 2 rosé
-    static getListOfTheseWines(couleur) {
-        
+    static getPersonnalListOfTheseWines(couleur, id_membres, cb) {
+        console.log('getPersonnalListOfTheseWines')
+
     }
 
     // static getAllClassementPersonnel(couleur, id_membres, cb) {
