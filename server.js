@@ -18,9 +18,9 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }
-  }))
-  app.use(require('./middlewares/flash'))
-  app.use(fileUpload())
+}))
+app.use(require('./middlewares/flash'))
+app.use(fileUpload())
 
 // Routes
 app.get('/', (request, response) => { 
@@ -124,13 +124,14 @@ app.post('/connexion', (request, response) => {
 })
 
 app.post('/creationcompte', (request, response) => {
+    // On vérifie que tous les champs sont biens remplis avant d'insérer
     if (request.body.email1 === undefined ||
         request.body.email1 === '' ||
+        request.body.email2 === undefined ||
         request.body.email2 === '' ||
-        request.body.email2 === '' ||
+        request.body.psw1 === undefined ||
         request.body.psw1 === '' ||
-        request.body.psw1 === '' ||
-        request.body.psw2 === '' ||
+        request.body.psw2 === undefined ||
         request.body.psw2 === ''
     )
     {

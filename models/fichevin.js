@@ -126,6 +126,11 @@ class FicheVin {
         })
     }
 
+    // Faire la liste de tous les vins de cette couleur: 0 rouge, 1 blanc, 2 rosé
+    static getListOfTheseWines(couleur) {
+        
+    }
+
     // static getAllClassementPersonnel(couleur, id_membres, cb) {
     //     connection.query(`select vins.id_vins, vins.nom, millesime, vins.date_consommation, vins.etiquette, vins.commentaire_personnel, vins.classement_general from vins 
     //     join classements_personnels_vins on vins.id_vins and classements_personnels_vins.id_vins

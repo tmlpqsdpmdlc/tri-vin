@@ -23,25 +23,13 @@ getActive = function() {
 // Aller chercher en bdd les vins correspondant à l'onglet
 montrerClassement = function(tab) {
     console.log("montrerClassement")
-    let couleurActuelle = ""
     var classementPersonnel = document.getElementById("classement-personnel")
     var titre = classementPersonnel.getElementsByTagName("h2")[0]
-    if (tab === 0) {
-        couleurActuelle = "rouges"
-    }
-    if (tab === 1) {
-        couleurActuelle = "blancs"
-    }
-    if (tab === 2) {
-        couleurActuelle = "rosés"
-    }
-    titre.innerHTML = "Affichage du classement personnel des vins " + couleurActuelle
+    
+    titre.innerHTML = "Affichage du classement personnel des vins " + tabToCouleurPlurielle(tab)
 
-    /*
-
-    code ici
-
-    */
+    // liste de tous les vins
+    //getListOfTheseWines(tab)
 }
 
 // Afficher le bon onglet et les bons vins
@@ -57,14 +45,32 @@ setActive = function(tab)
     montrerClassement(tab)
 }
 
+// Obtenir la couleur au singulier depuis le numéro de l'onglet
+tabToCouleurPlurielle = function(tab) {
+    if (tab === 0) {
+        return "rouges"
+    }
+    if (tab === 1) {
+        return "blancs"
+    }
+    if (tab === 2) {
+        return "rosés"
+    }
+}
+
+// Obtenir le numéro de l'onglet depuis la couleur au singulier
+CouleurSingulierToTab = function(couleur) {
+    if (couleur === "false" || couleur === "rouge") {
+        return 0
+    }
+    if (couleur === "blanc") {
+        return 1
+    }
+    if (couleur === "rose") {
+        return 2
+    }
+}
+
 // On coche le bon onglet avec la couleur qu'on reçoit de l'insertion
 // Si pas de couleur, on choisit rouge
-if (couleur === "false" || couleur === "rouge") {
-    setActive(0)
-}
-if (couleur === "blanc") {
-    setActive(1)
-}
-if (couleur === "rose") {
-    setActive(2)
-}
+setActive(CouleurSingulierToTab(couleur))
