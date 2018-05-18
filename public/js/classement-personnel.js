@@ -39,30 +39,37 @@ CouleurSingulierToTab = function(couleur) {
     }
 }
 
+/******************************Mécanique de la page**********************************/
+var id_membre = $("#id_membre").text()
+var couleur = $("#couleur").text()
+
 // Naviguer entre les onglets et demander le chargement de la liste personnelle des vins
 $(".tabSousMenu").click(function() {
-
-    console.log("click")
 
     $(".tabSousMenu").removeClass("active")
     $(this).addClass("active")
 
     $("#classement-personnel").find("h2").first().html("48")
 
-    // getPersonnalListOfTheseWines(couleur, id_membre)
+    // getPersonnalListOfTheseWines
+    $.post('/listepersonnelle', {id_membre: id_membre, couleur: couleur}, function() {
+        console.log("ajax")
+    }).done(function( data ) {
+        console.log( "Data Loaded: " + data.deuxieme_truc )
+    })
 })
 
 // Initialiser les onglets et simuler un click
 $(document).ready(function() {
-    
     if ($("#couleur").text() !== "false") {
-        $(".tabSousMenu:nth-child(" + ( CouleurSingulierToTab($("#couleur").text()) + 1 ) + ")").addClass("active").click()
+        $(".tabSousMenu:nth-child(" + ( CouleurSingulierToTab(couleur) + 1 ) + ")").addClass("active").click()
     } else {
         $(".tabSousMenu").first().addClass("active").click()
     }
 })
 
-
-
-
-
+// appel ajax pour la liste personnelle des vins
+// var ajax = $.post('/listepersonnelle', {id_membre: id_membre}, function(data) {
+//     console.log("on est dedans")
+//     console.log('data', data)
+// })

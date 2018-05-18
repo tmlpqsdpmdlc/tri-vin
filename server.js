@@ -66,16 +66,12 @@ app.post('/insertion-vin', (request, response) => {
                     if (erreur) throw erreur
                     // on update la valeur du nom de la photo dans la bdd
                     ficheVin.modifierValeurEtiquette(insertId, etiquette)
-                    // on dirige vers la page de classement personnel avec le numéro de l'id du vin à insérer
+                    // on dirige vers la page de classement personnel avec le numéro de l'id du vin à insérer et la couleur de ce vin
                     response.render('pages/classement-personnel', {titre: "classement personnel", insertId: insertId, couleur: couleur})
                 })
             })
         }
     })
-    
-    
-    
-    
 })
 
 app.get('/communaute', (request, response) => { 
@@ -173,5 +169,19 @@ app.post('/creationcompte', (request, response) => {
         })
     }
 })
+
+// Appels Ajax
+app.post('/listepersonnelle', (request, response) => {
+    console.log('id_membre', request.body.id_membre)
+    console.log('couleur', request.body.couleur)
+    
+    
+    
+    
+    
+    
+    response.send({premier_truc: "ce truc", deuxieme_truc: "celui la"})
+})
+
 
 app.listen(8080)
