@@ -129,7 +129,23 @@ class FicheVin {
     // Faire la liste de tous les vins de cette couleur: 0 rouge, 1 blanc, 2 rosé
     static getPersonnalListOfTheseWines(couleur, id_membres, cb) {
         console.log('getPersonnalListOfTheseWines')
+        console.log('id_membres', id_membres)
+        console.log('couleur', couleur)
+        connection.query(
+            `select * from vins `+
+            `join classements_personnels_vins on vins.id_vins = classements_personnels_vins.id_vins `+
+            `join membres on membres.id_membres = classements_personnels_vins.id_membres `+
+            `where membres.id_membres = ? and vins.couleur like ? `+
+            `order by classements_personnels_vins.classements_personnels_vins;`,
+            [id_membres, couleur],
+            (error, results, fields) => {
+                if (error) throw error
+                console.log('results', results)
+            }
+        )
 
+
+        cb("pof pof, ça roule")
     }
 
     // static getAllClassementPersonnel(couleur, id_membres, cb) {

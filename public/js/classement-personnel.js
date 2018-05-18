@@ -51,7 +51,7 @@ $(".tabSousMenu").click(function() {
 
     $("#classement-personnel").find("h2").first().html("48")
 
-    // getPersonnalListOfTheseWines
+    // getPersonnalListOfTheseWines (async)
     $.post('/listepersonnelle', {id_membre: id_membre, couleur: couleur}, function() {
         console.log("ajax")
     }).done(function( data ) {
@@ -61,15 +61,10 @@ $(".tabSousMenu").click(function() {
 
 // Initialiser les onglets et simuler un click
 $(document).ready(function() {
-    if ($("#couleur").text() !== "false") {
+    if (couleur !== "false") {
         $(".tabSousMenu:nth-child(" + ( CouleurSingulierToTab(couleur) + 1 ) + ")").addClass("active").click()
     } else {
+        couleur = "rouge"
         $(".tabSousMenu").first().addClass("active").click()
     }
 })
-
-// appel ajax pour la liste personnelle des vins
-// var ajax = $.post('/listepersonnelle', {id_membre: id_membre}, function(data) {
-//     console.log("on est dedans")
-//     console.log('data', data)
-// })

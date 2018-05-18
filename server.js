@@ -172,9 +172,13 @@ app.post('/creationcompte', (request, response) => {
 
 // Appels Ajax
 app.post('/listepersonnelle', (request, response) => {
-    console.log('id_membre', request.body.id_membre)
-    console.log('couleur', request.body.couleur)
+    let fichevin = require('./models/ficheVin')
+    let couleur = request.body.couleur
+    let id_membre = request.body.id_membre
     
+    fichevin.getPersonnalListOfTheseWines(couleur, id_membre, (ce_genre_de_cb) => {
+        console.log(ce_genre_de_cb)
+    })
     
     
     
