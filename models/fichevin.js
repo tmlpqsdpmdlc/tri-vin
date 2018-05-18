@@ -110,7 +110,7 @@ class FicheVin {
         })
     }
 
-    
+    // Vérification de si un vin existe déjà
     static checkIfAlreadyExists(nom, millesime, couleur, cb) {
         console.log('checkIfAlreadyExists')
         connection.query('select * from vins where nom like ? and millesime like ? and couleur like ?', [nom, millesime, couleur], (error, result, fields) => {
