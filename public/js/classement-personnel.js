@@ -53,8 +53,9 @@ $(".tabSousMenu").click(function() {
 
     // getPersonnalListOfTheseWines (async)
     $.post('/listepersonnelle', {id_membre: id_membre, couleur: couleur}, function() {
-        console.log("ajax")
+        $(".loader").show()
     }).done(function( data ) {
+        $(".loader").hide()
         console.log( "Data Loaded: " + data.deuxieme_truc )
     })
 })
@@ -68,3 +69,4 @@ $(document).ready(function() {
         $(".tabSousMenu").first().addClass("active").click()
     }
 })
+

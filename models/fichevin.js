@@ -129,8 +129,6 @@ class FicheVin {
     // Faire la liste de tous les vins de cette couleur: 0 rouge, 1 blanc, 2 rosé
     static getPersonnalListOfTheseWines(couleur, id_membres, cb) {
         console.log('getPersonnalListOfTheseWines')
-        console.log('id_membres', id_membres)
-        console.log('couleur', couleur)
         connection.query(
             `select * from vins `+
             `join classements_personnels_vins on vins.id_vins = classements_personnels_vins.id_vins `+
@@ -140,12 +138,24 @@ class FicheVin {
             [id_membres, couleur],
             (error, results, fields) => {
                 if (error) throw error
-                console.log('results', results)
+                // On doit maintenant séparer les objets reçus et les mettre dans un tableau
+                let nbreResultats = results.length
+                let retour = []
+                let objetTemporaire = {}
+                for (var i = 0 ; i <= nbreResultats - 1 ; i++) {
+                    objetTemporaire.nom = results[i].nom
+                    objetTemporaire.millesime = results[i].millesime
+                    objetTemporaire.couleur = results[i].couleur
+                    objetTemporaire.date_consommation = moment(results[i].date_consommation)
+                    objetTemporaire.etiquette = results[i].etiquette
+                    objetTemporaire.commentaire_personnel = results[i].commentaire_personnel
+                    objetTemporaire.classements_personnels_vins = results[i].classements_personnels_vins
+                    retour.push(objetTemporaire)
+                    objetTemporaire = new Object()
+                }
+                cb(retour)
             }
         )
-
-
-        cb("pof pof, ça roule")
     }
 
     // static getAllClassementPersonnel(couleur, id_membres, cb) {
