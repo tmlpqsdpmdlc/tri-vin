@@ -56,7 +56,10 @@ $(".tabSousMenu").click(function() {
         $(".loader").show()
     }).done(function( data ) {
         $(".loader").hide()
-        console.log( "Data Loaded: " + data.deuxieme_truc )
+
+        // Attendre un objet de l'api ajax
+
+        //console.log('liste_des_vins_classes', data.liste_des_vins_classes )
     })
 })
 
