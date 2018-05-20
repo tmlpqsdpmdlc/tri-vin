@@ -180,19 +180,12 @@ app.post('/listepersonnelle', (request, response) => {
 
         // Il faut trouver le moyen de transférer un objet dans les ejs
 
-        // if (ce_genre_de_cb.length === 0) {
-        //     response.send({liste_des_vins_classes: []})
-        // } else {
-        //     response.send({liste_des_vins_classes: ce_genre_de_cb})
-        // }
-
+        if (ce_genre_de_cb.length === 0) {
+            response.send({liste_des_vins_classes: []})
+        } else {
+            response.send({liste_des_vins_classes: ce_genre_de_cb})
+        }
     })
-    
-    
-    
-    
-    
-    response.send({premier_truc: "ce truc", deuxieme_truc: "celui la"})
 })
 
 

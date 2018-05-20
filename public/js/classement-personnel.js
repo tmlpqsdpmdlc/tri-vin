@@ -26,6 +26,19 @@ tabToCouleurPlurielle = function(tab) {
     }
 }
 
+// Obtenir la couleur au singulier depuis le numéro de l'onglet
+tabToCouleurSingulier = function(tab) {
+    if (tab === 0) {
+        return "rouge"
+    }
+    if (tab === 1) {
+        return "blanc"
+    }
+    if (tab === 2) {
+        return "rose"
+    }
+}
+
 // Obtenir le numéro de l'onglet depuis la couleur au singulier
 CouleurSingulierToTab = function(couleur) {
     if (couleur === "false" || couleur === "rouge") {
@@ -49,6 +62,7 @@ $(".tabSousMenu").click(function() {
     $(".tabSousMenu").removeClass("active")
     $(this).addClass("active")
 
+    couleur = tabToCouleurSingulier($("#onglets").find("a").index(this))
     $("#classement-personnel").find("h2").first().html("48")
 
     // getPersonnalListOfTheseWines (async)
@@ -58,8 +72,7 @@ $(".tabSousMenu").click(function() {
         $(".loader").hide()
 
         // Attendre un objet de l'api ajax
-
-        //console.log('liste_des_vins_classes', data.liste_des_vins_classes )
+        console.log('liste_des_vins_classes', data.liste_des_vins_classes )
     })
 })
 
