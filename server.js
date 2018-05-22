@@ -28,7 +28,7 @@ app.get('/', (request, response) => {
 })
 
 app.get('/classement-personnel', (request, response) => { 
-    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: false, couleur: false, mode: 'consult'})
+    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: false, couleur: false, mode: 'consultation'})
 })
 
 // app.post('/classement-personnel', (request, response) => { 
@@ -58,13 +58,15 @@ app.post('/insertion-vin', (request, response) => {
         else
         {
             // on enregistre les valeurs dans la bases
-            ficheVin.insertionVin(nom, millesime, couleur, date_consommation, __dirname + '/public/images/empty.png', commentaire_personnel, (insertId) => {
+            let etiquette = __dirname + '/public/images/empty.png'
+            ficheVin.insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, (insertId) => {
                 //  on récupère l'id du vin et on nommera la photo comme ça
-                let etiquette = __dirname + '/public/images/' + insertId + path.extname(request.files.etiquette.name)
+                etiquette = __dirname + '/public/images/' + insertId + path.extname(request.files.etiquette.name)
                 // on sauvegarde la photo avec ce nom
                 request.files.etiquette.mv(etiquette, (erreur) => {
                     if (erreur) throw erreur
                     // on update la valeur du nom de la photo dans la bdd
+                    etiquette = 'assets/images/' + + insertId + path.extname(request.files.etiquette.name)
                     ficheVin.modifierValeurEtiquette(insertId, etiquette)
                     // on dirige vers la page de classement personnel avec le numéro de l'id du vin à insérer et la couleur de ce vin
                     response.render('pages/classement-personnel', {titre: "classement personnel", insertId: insertId, couleur: couleur, mode: 'insert'})
@@ -171,6 +173,13 @@ app.post('/creationcompte', (request, response) => {
 })
 
 // Appels Ajax
+app.post('/classerpesonnel', (request, response) => {
+    let fichevin = require('./models/ficheVin')
+    fichevin.ajouterAuClassementPersonnel(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (ce_genre_de_cb) => {
+        response.send('c\'est ok')
+    })
+})
+
 app.post('/listepersonnelle', (request, response) => {
     let fichevin = require('./models/ficheVin')
     let couleur = request.body.couleur

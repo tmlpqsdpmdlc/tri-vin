@@ -2,13 +2,7 @@
 
 <h1>Ceci est la page classement personnel</h1>
 
-<% if(insertId) { %>
-    <p>Ceci est l'id inséré: <%= insertId %></p>
-<% }
-else
-{ %>
-    <a href="/insertion-vin">Insérer un vin à ce classement</a>
-<% } %>
+<a class="consultation" href="/insertion-vin">Insérer un vin à ce classement</a>
 
 <div class="ui three item menu" id="onglets">
     <a class="item tabSousMenu">Vins rouges</a>
@@ -29,6 +23,7 @@ else
 <p id="couleur" style="display: none;"><%= couleur %></p>
 <p id="mode" style="display: none;"><%= mode %></p>
 <p id="id_membre" style="display: none;"><%= locals.cnx %></p>
+<p id="insertId" style="display: none;"><%= insertId %></p>
 
 <script
   src="https://code.jquery.com/jquery-3.3.1.min.js"

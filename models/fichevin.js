@@ -159,6 +159,38 @@ class FicheVin {
         )
     }
 
+    // ajouter un vin au classement personnel
+    static ajouterAuClassementPersonnel(id_vins, id_membres, couleur, classements_personnels_vins, cb) {
+        console.log('ajouterAuClassementPersonnel')
+
+        // On va incrémenter le classement personnel de tous les vins de classement supérieur ou égal
+        connection.query(
+            `select * from vins `+
+            `join classements_personnels_vins on vins.id_vins = classements_personnels_vins.id_vins `+
+            `join membres on membres.id_membres = classements_personnels_vins.id_membres `+
+            `where membres.id_membres = ? and vins.couleur like ? `+
+            `order by classements_personnels_vins.classements_personnels_vins;`,
+            [id_membres, couleur],
+            (error, results, fields) => {
+                if (error) throw error
+                for(var i = 0 ; i < results.length ; i++) {
+                    if (results[i].classements_personnels_vins >= classements_personnels_vins) {
+                        let nvoClassement = results[i].classements_personnels_vins + 1
+                        let id_vin = results[i].id_vins
+                        connection.query('update classements_personnels_vins set classements_personnels_vins = ? where id_vins = ? and id_membres = ? ', [nvoClassement, id_vin, id_membres], (error2, results2, fields2) => {
+                            if (error2) throw error2
+                        })
+                    }
+                }
+                connection.query('insert into classements_personnels_vins (id_vins, id_membres, classements_personnels_vins) values (?,?,?)', [id_vins, id_membres, classements_personnels_vins], (error2, results2, fields2) => {
+                    if (error2) throw error2
+                })
+            }
+        )
+
+        cb('c\'est bat')
+    }
+
     // static getAllClassementPersonnel(couleur, id_membres, cb) {
     //     connection.query(`select vins.id_vins, vins.nom, millesime, vins.date_consommation, vins.etiquette, vins.commentaire_personnel, vins.classement_general from vins 
     //     join classements_personnels_vins on vins.id_vins and classements_personnels_vins.id_vins
