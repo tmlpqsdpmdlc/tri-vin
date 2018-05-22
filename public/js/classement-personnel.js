@@ -90,23 +90,20 @@ $(".tabSousMenu").click(function() {
     }).done(function( data ) {
         $(".loader").hide()
 
-        // Attendre un objet de l'api ajax
-        if (data.liste_des_vins_classes.length === 0) {
-            $("#liste_des_vins_classes").html("")
-        } else {
-            $("#liste_des_vins_classes").html(affichageTri(data.liste_des_vins_classes))
+        // Mettre en forme les données reçues
+        $("#liste_des_vins_classes").html(affichageTri(data.liste_des_vins_classes))
 
-            // Afficher le matériel relatif au mode
-            // Rendre les images non clicables
-            // Masquer les onglets inutiles
-            if (mode === "insert") {
-                $(".insert").show()
-                $(".etiquette, .tabSousMenu").css('pointer-events', 'none')
-            } else {
-                $(".insert").hide()
-                $(".etiquette, .tabSousMenu").css('pointer-events', 'auto')
-            }
+        // Afficher le matériel relatif au mode
+        // Rendre les images non clicables
+        // Rendre les onglets non clicables
+        if (mode === "insert") {
+            $(".insert").show()
+            $(".etiquette, .tabSousMenu").css('pointer-events', 'none')
+        } else {
+            $(".insert").hide()
+            $(".etiquette, .tabSousMenu").css('pointer-events', 'auto')
         }
+
     })
 })
 
