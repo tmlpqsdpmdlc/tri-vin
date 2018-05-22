@@ -179,7 +179,6 @@ app.post('/listepersonnelle', (request, response) => {
     fichevin.getPersonnalListOfTheseWines(couleur, id_membre, (ce_genre_de_cb) => {
 
         // Il faut trouver le moyen de transférer un objet dans les ejs
-
         if (ce_genre_de_cb.length === 0) {
             response.send({liste_des_vins_classes: []})
         } else {

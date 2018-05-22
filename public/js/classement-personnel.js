@@ -1,3 +1,4 @@
+/******************************Fonctions*****************************************/
 // Fonction pour supprimer les accents
 removeAccents = function(str) {
     var accents    = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
@@ -40,7 +41,7 @@ tabToCouleurSingulier = function(tab) {
 }
 
 // Obtenir le numéro de l'onglet depuis la couleur au singulier
-CouleurSingulierToTab = function(couleur) {
+couleurSingulierToTab = function(couleur) {
     if (couleur === "false" || couleur === "rouge") {
         return 0
     }
@@ -50,6 +51,20 @@ CouleurSingulierToTab = function(couleur) {
     if (couleur === "rose") {
         return 2
     }
+}
+
+// Afficher les vins dans le DOM
+affichageTri = function(liste_des_vins_classes) {
+    htmlTemporaire = ""
+    retour = ""
+
+    for(var i = 0 ; i < liste_des_vins_classes.length ; i++) {
+        htmlTemporaire += '<a href="#"><img src="' + liste_des_vins_classes[i].etiquette + '"></a></br>'
+        retour += htmlTemporaire
+        htmlTemporaire = ""
+    }
+
+    return retour
 }
 
 /******************************Mécanique de la page**********************************/
@@ -63,7 +78,6 @@ $(".tabSousMenu").click(function() {
     $(this).addClass("active")
 
     couleur = tabToCouleurSingulier($("#onglets").find("a").index(this))
-    $("#classement-personnel").find("h2").first().html("48")
 
     // getPersonnalListOfTheseWines (async)
     $.post('/listepersonnelle', {id_membre: id_membre, couleur: couleur}, function() {
@@ -72,14 +86,18 @@ $(".tabSousMenu").click(function() {
         $(".loader").hide()
 
         // Attendre un objet de l'api ajax
-        console.log('liste_des_vins_classes', data.liste_des_vins_classes )
+        if (data.liste_des_vins_classes.length === 0) {
+            $("#liste_des_vins_classes").html("")
+        } else {
+            $("#liste_des_vins_classes").html(affichageTri(data.liste_des_vins_classes))
+        }
     })
 })
 
 // Initialiser les onglets et simuler un click
 $(document).ready(function() {
     if (couleur !== "false") {
-        $(".tabSousMenu:nth-child(" + ( CouleurSingulierToTab(couleur) + 1 ) + ")").addClass("active").click()
+        $(".tabSousMenu:nth-child(" + ( couleurSingulierToTab(couleur) + 1 ) + ")").addClass("active").click()
     } else {
         couleur = "rouge"
         $(".tabSousMenu").first().addClass("active").click()
