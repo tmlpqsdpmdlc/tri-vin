@@ -1,48 +1,17 @@
-// Modification de l'affichage du menu
-var tabSousMenu = document.getElementsByClassName('tabSousMenu')
-var couleur = document.getElementById("couleur").innerHTML
-
-for(let i = 0 ; i < tabSousMenu.length ; i++)
-{
-    tabSousMenu[i].addEventListener('click', (event)=>{
-        setActive(i)
-    })
-}
-
-// Quel est l'onglet actif ?
-getActive = function() {
-    console.log("getActive")
-    for(var i = 0 ; i < tabSousMenu.length ; i++)
-    {
-        if (tabSousMenu[i].getAttribute('class').contains("active")) {
-            return i;
-        }
+/******************************Fonctions*****************************************/
+// Fonction pour supprimer les accents
+removeAccents = function(str) {
+    var accents    = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
+    var accentsOut = "AAAAAAaaaaaaOOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNnSsYyyZz";
+    str = str.split('');
+    var strLen = str.length;
+    var i, x;
+    for (i = 0; i < strLen; i++) {
+      if ((x = accents.indexOf(str[i])) != -1) {
+        str[i] = accentsOut[x];
+      }
     }
-}
-
-// Aller chercher en bdd les vins correspondant à l'onglet
-montrerClassement = function(tab) {
-    console.log("montrerClassement")
-    var classementPersonnel = document.getElementById("classement-personnel")
-    var titre = classementPersonnel.getElementsByTagName("h2")[0]
-    
-    titre.innerHTML = "Affichage du classement personnel des vins " + tabToCouleurPlurielle(tab)
-
-    // liste de tous les vins
-    //getListOfTheseWines(tab)
-}
-
-// Afficher le bon onglet et les bons vins
-setActive = function(tab)
-{
-    console.log("setActive")
-    for(var i = 0 ; i < tabSousMenu.length ; i++)
-    {
-        tabSousMenu[i].setAttribute('class', 'item tabSousMenu') 
-    }
-
-    tabSousMenu[tab].setAttribute('class', 'item active tabSousMenu')
-    montrerClassement(tab)
+    return str.join('');
 }
 
 // Obtenir la couleur au singulier depuis le numéro de l'onglet
@@ -58,8 +27,21 @@ tabToCouleurPlurielle = function(tab) {
     }
 }
 
+// Obtenir la couleur au singulier depuis le numéro de l'onglet
+tabToCouleurSingulier = function(tab) {
+    if (tab === 0) {
+        return "rouge"
+    }
+    if (tab === 1) {
+        return "blanc"
+    }
+    if (tab === 2) {
+        return "rose"
+    }
+}
+
 // Obtenir le numéro de l'onglet depuis la couleur au singulier
-CouleurSingulierToTab = function(couleur) {
+couleurSingulierToTab = function(couleur) {
     if (couleur === "false" || couleur === "rouge") {
         return 0
     }
@@ -71,6 +53,100 @@ CouleurSingulierToTab = function(couleur) {
     }
 }
 
-// On coche le bon onglet avec la couleur qu'on reçoit de l'insertion
-// Si pas de couleur, on choisit rouge
-setActive(CouleurSingulierToTab(couleur))
+// Afficher les vins dans le DOM
+affichageTri = function(liste_des_vins_classes) {
+    htmlTemporaire = ""
+    retour = '<button class="ui massive positive button insert" classements_personnels_vins="0">Placer ici</button></br>'
+
+    for(var i = 0 ; i < liste_des_vins_classes.length ; i++) {
+
+        console.log(liste_des_vins_classes)
+
+        htmlTemporaire += '<a href="/ficheVin?id=' + liste_des_vins_classes[i].id_vins + '" class="etiquette"><img src="' + liste_des_vins_classes[i].etiquette + '"></a></br>'
+        htmlTemporaire += '<button class="ui massive positive button insert" classements_personnels_vins="' + (i + 1) + '">Placer ici</button></br>'
+        retour += htmlTemporaire
+        htmlTemporaire = ""
+    }
+
+    return retour
+}
+
+/******************************Mécanique de la page**********************************/
+var id_membre = $("#id_membre").text()
+var couleur = $("#couleur").text()
+var mode = $("#mode").text()
+var id_vins = $("#insertId").text()
+
+// Naviguer entre les onglets et demander le chargement de la liste personnelle des vins
+$(".tabSousMenu").click(function() {
+
+    $(".tabSousMenu").removeClass("active")
+    $(this).addClass("active")
+
+    couleur = tabToCouleurSingulier($("#onglets").find("a").index(this))
+
+    // getPersonnalListOfTheseWines (async)
+    $.post('/listepersonnelle', {id_membre: id_membre, couleur: couleur}, function() {
+        $(".loader").show()
+    }).done(function( data ) {
+        $(".loader").hide()
+
+        // Mettre en forme les données reçues
+        $("#liste_des_vins_classes").html(affichageTri(data.liste_des_vins_classes))
+
+        // Afficher le matériel relatif au mode
+        // Rendre les images non clicables
+        // Rendre les onglets non clicables
+        if (mode === "insert") {
+
+            // Insertion automatique du premier vin au classement
+            if (data.liste_des_vins_classes.length === 0) {
+                mode = "consultation"
+                $.post('/classerpesonnel', {id_membres: id_membre, couleur: couleur, id_vins: id_vins, classements_personnels_vins: 0}, function() {
+                    // envoie des données au serveur
+                }).done(function( data ) {
+                    $('.active').click()
+                })
+            }
+
+            $(".insert").show()
+            $(".consultation").hide()
+            $(".etiquette, .tabSousMenu").css('pointer-events', 'none')
+            $('.insert').css('pointer-events', 'auto')
+        } else if (mode === "consultation"){
+            $(".insert").hide()
+            $(".consultation").show()
+            $(".etiquette, .tabSousMenu").css('pointer-events', 'auto')
+        } else {
+            $(".insert").hide()
+            $(".consultation").hide()
+            $(".etiquette, .tabSousMenu").css('pointer-events', 'auto')
+        }
+
+    })
+})
+
+// Insérer un vin à l'emplacement désiré puis rechargement du classement en mode consultation
+$(document).on('click', '.insert', function() {
+    let classements_personnels_vins = $(this).attr('classements_personnels_vins')
+    mode = "consultation"
+
+    $.post('/classerpesonnel', {id_membres: id_membre, couleur: couleur, id_vins: id_vins, classements_personnels_vins: classements_personnels_vins}, function() {
+        // envoie des données au serveur
+    }).done(function( data ) {
+        $('.active').click()
+    })
+
+})
+
+
+$(document).ready(function() {
+    // Initialiser les onglets et simuler un click pour lancer l'affichage du classement
+    if (couleur !== "false") {
+        $(".tabSousMenu:nth-child(" + ( couleurSingulierToTab(couleur) + 1 ) + ")").addClass("active").click()
+    } else {
+        couleur = "rouge"
+        $(".tabSousMenu").first().addClass("active").click()
+    }
+})
+

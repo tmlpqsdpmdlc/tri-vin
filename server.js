@@ -28,7 +28,7 @@ app.get('/', (request, response) => {
 })
 
 app.get('/classement-personnel', (request, response) => { 
-    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: false, couleur: false})
+    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: false, couleur: false, mode: 'consultation'})
 })
 
 // app.post('/classement-personnel', (request, response) => { 
@@ -58,24 +58,22 @@ app.post('/insertion-vin', (request, response) => {
         else
         {
             // on enregistre les valeurs dans la bases
-            ficheVin.insertionVin(nom, millesime, couleur, date_consommation, __dirname + '/public/images/empty.png', commentaire_personnel, (insertId) => {
+            let etiquette = __dirname + '/public/images/empty.png'
+            ficheVin.insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, (insertId) => {
                 //  on récupère l'id du vin et on nommera la photo comme ça
-                let etiquette = __dirname + '/public/images/' + insertId + path.extname(request.files.etiquette.name)
+                etiquette = __dirname + '/public/images/' + insertId + path.extname(request.files.etiquette.name)
                 // on sauvegarde la photo avec ce nom
                 request.files.etiquette.mv(etiquette, (erreur) => {
                     if (erreur) throw erreur
                     // on update la valeur du nom de la photo dans la bdd
+                    etiquette = 'assets/images/' + + insertId + path.extname(request.files.etiquette.name)
                     ficheVin.modifierValeurEtiquette(insertId, etiquette)
-                    // on dirige vers la page de classement personnel avec le numéro de l'id du vin à insérer
-                    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: insertId, couleur: couleur})
+                    // on dirige vers la page de classement personnel avec le numéro de l'id du vin à insérer et la couleur de ce vin
+                    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: insertId, couleur: couleur, mode: 'insert'})
                 })
             })
         }
     })
-    
-    
-    
-    
 })
 
 app.get('/communaute', (request, response) => { 
@@ -173,5 +171,30 @@ app.post('/creationcompte', (request, response) => {
         })
     }
 })
+
+// Appels Ajax
+app.post('/classerpesonnel', (request, response) => {
+    let fichevin = require('./models/ficheVin')
+    fichevin.ajouterAuClassementPersonnel(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (ce_genre_de_cb) => {
+        response.send('c\'est ok')
+    })
+})
+
+app.post('/listepersonnelle', (request, response) => {
+    let fichevin = require('./models/ficheVin')
+    let couleur = request.body.couleur
+    let id_membre = request.body.id_membre
+    
+    fichevin.getPersonnalListOfTheseWines(couleur, id_membre, (ce_genre_de_cb) => {
+
+        // Il faut trouver le moyen de transférer un objet dans les ejs
+        if (ce_genre_de_cb.length === 0) {
+            response.send({liste_des_vins_classes: []})
+        } else {
+            response.send({liste_des_vins_classes: ce_genre_de_cb})
+        }
+    })
+})
+
 
 app.listen(8080)
