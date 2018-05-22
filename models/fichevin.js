@@ -97,7 +97,12 @@ class FicheVin {
 
     static insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, cb) {
         console.log('insertionVin')
-        connection.query('insert into vins set nom = ?, millesime = ?, couleur = ?, date_consommation = ?, commentaire_personnel = ?, etiquette = ?', [nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette], (error, result, fields) => {
+        connection.query(`insert into vins (nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette) `
+        + `select * from (select ?, ?, ?, ?, ?, ?) as tmp `
+        + `where not exists( `
+        + `select nom, millesime, couleur from vins where nom = ? and millesime = ? and couleur = ? `
+        +  `) limit 1;`, 
+            [nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, nom, millesime, couleur], (error, result, fields) => {
             if (error) throw error
             cb(result.insertId)
         })
@@ -182,7 +187,12 @@ class FicheVin {
                         })
                     }
                 }
-                connection.query('insert into classements_personnels_vins (id_vins, id_membres, classements_personnels_vins) values (?,?,?)', [id_vins, id_membres, classements_personnels_vins], (error2, results2, fields2) => {
+                connection.query(`insert into classements_personnels_vins (id_vins, id_membres, classements_personnels_vins) `
+                + `select * from (select ?,?,?) as tmp `
+                + `where not exists( `
+                +   `SELECT id_vins, id_membres FROM classements_personnels_vins WHERE id_vins = ? and id_membres = ? `
+                + `) limit 1;`
+                , [id_vins, id_membres, classements_personnels_vins, id_vins, id_membres], (error2, results2, fields2) => {
                     if (error2) throw error2
                 })
             }
