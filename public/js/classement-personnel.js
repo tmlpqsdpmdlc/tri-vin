@@ -56,10 +56,14 @@ couleurSingulierToTab = function(couleur) {
 // Afficher les vins dans le DOM
 affichageTri = function(liste_des_vins_classes) {
     htmlTemporaire = ""
-    retour = ""
+    retour = '<p class="insert" id="insert_0">insert</p>'
 
     for(var i = 0 ; i < liste_des_vins_classes.length ; i++) {
-        htmlTemporaire += '<a href="#"><img src="' + liste_des_vins_classes[i].etiquette + '"></a></br>'
+
+        console.log(liste_des_vins_classes)
+
+        htmlTemporaire += '<a href="/ficheVin?id=' + liste_des_vins_classes[i].id_vins + '" class="etiquette"><img src="' + liste_des_vins_classes[i].etiquette + '"></a></br>'
+        htmlTemporaire += '<p class="insert" id="insert_' + (i + 1) + '">insert</p>'
         retour += htmlTemporaire
         htmlTemporaire = ""
     }
@@ -70,6 +74,7 @@ affichageTri = function(liste_des_vins_classes) {
 /******************************Mécanique de la page**********************************/
 var id_membre = $("#id_membre").text()
 var couleur = $("#couleur").text()
+var mode = $("#mode").text()
 
 // Naviguer entre les onglets et demander le chargement de la liste personnelle des vins
 $(".tabSousMenu").click(function() {
@@ -90,12 +95,24 @@ $(".tabSousMenu").click(function() {
             $("#liste_des_vins_classes").html("")
         } else {
             $("#liste_des_vins_classes").html(affichageTri(data.liste_des_vins_classes))
+
+            // Afficher le matériel relatif au mode
+            // Rendre les images non clicables
+            // Masquer les onglets inutiles
+            if (mode === "insert") {
+                $(".insert").show()
+                $(".etiquette, .tabSousMenu").css('pointer-events', 'none')
+            } else {
+                $(".insert").hide()
+                $(".etiquette, .tabSousMenu").css('pointer-events', 'auto')
+            }
         }
     })
 })
 
-// Initialiser les onglets et simuler un click
+
 $(document).ready(function() {
+    // Initialiser les onglets et simuler un click pour lancer l'affichage du classement
     if (couleur !== "false") {
         $(".tabSousMenu:nth-child(" + ( couleurSingulierToTab(couleur) + 1 ) + ")").addClass("active").click()
     } else {

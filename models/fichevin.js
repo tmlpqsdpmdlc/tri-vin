@@ -143,6 +143,7 @@ class FicheVin {
                 let retour = []
                 let objetTemporaire = {}
                 for (var i = 0 ; i <= nbreResultats - 1 ; i++) {
+                    objetTemporaire.id_vins = results[i].id_vins
                     objetTemporaire.nom = results[i].nom
                     objetTemporaire.millesime = results[i].millesime
                     objetTemporaire.couleur = results[i].couleur
