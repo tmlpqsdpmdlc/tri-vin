@@ -187,6 +187,7 @@ class FicheVin {
                         })
                     }
                 }
+                // On insère le nouveau vin dans le classement
                 connection.query(`insert into classements_personnels_vins (id_vins, id_membres, classements_personnels_vins) `
                 + `select * from (select ?,?,?) as tmp `
                 + `where not exists( `
@@ -197,27 +198,23 @@ class FicheVin {
                 })
             }
         )
-
         cb('c\'est bat')
     }
 
-    // static getAllClassementPersonnel(couleur, id_membres, cb) {
-    //     connection.query(`select vins.id_vins, vins.nom, millesime, vins.date_consommation, vins.etiquette, vins.commentaire_personnel, vins.classement_general from vins 
-    //     join classements_personnels_vins on vins.id_vins and classements_personnels_vins.id_vins
-    //     where vins.couleur like ? and classements_personnels_vins.id_membres = ?
-    //     order by classements_personnels_vins.classement_personnel_vins;`, [couleur, id_membres], (err, rows) => {
-    //         if (err) throw err
-    //         cb(rows.map((row) => new FicheVin(row)))
-    //     })
-    // }
+    // Obtenir les informations relatives à 1 vin avec son id en étant connecté
+    static getFicheVinWithIdBeingCo(id_vins, id_membres) {
+        console.log("getFicheVinWithIdBeingCo")
+        
+    }
 
-    // static getAllClassementGeneral(couleur, cb)
-    // {
-    //     connection.query('select * from vins where couleur like ? order by classement_general', [couleur], (err, rows) => {
-    //         if (err) throw err
-    //         cb(rows.map((row) => new FicheVin(row)))
-    //     })
-    // }
+    // Obtenir les informations relatives à 1 vin avec son id en étant déconnecté
+    static getFicheVinWithIdNotBeingCo(id_vins, cb) {
+        console.log("getFicheVinWithIdNotBeingCo")
+        connection.query('select * from vins where id_vins = ?', [id_vins], (error, results, fields) => {
+            if (error) throw error
+            cb(results)
+        })
+    }
 }
 
 module.exports = FicheVin
