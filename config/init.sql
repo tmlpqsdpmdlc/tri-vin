@@ -1,4 +1,4 @@
-create database trivin;
+create database if not exists trivin;
 
 use trivin;
 
@@ -7,9 +7,7 @@ create table vins (
     nom varchar(255) not null,
     millesime varchar(4) not null,
     couleur varchar(5) not null,
-    date_consommation datetime not null,
-    etiquette text, 
-    commentaire_personnel text,
+    etiquette text not null, 
     classement_general int
 );
 
@@ -69,7 +67,9 @@ create table classements_personnels_vins (
     id_classements_personnels_vins int primary key auto_increment,
     id_vins int not null,
     id_membres int not null,
-    classements_personnels_vins int not null,
+    date_consommation datetime not null,
+    classements_personnels_vins int,
+    commentaire_personnel text,
     constraint vp1 foreign key (id_vins) references vins(id_vins) on delete cascade,
     constraint vp2 foreign key (id_membres) references membres(id_membres) on delete cascade
 );

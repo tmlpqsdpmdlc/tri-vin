@@ -46,27 +46,28 @@ app.post('/insertion-vin', (request, response) => {
     let couleur = request.body.couleur
     let date_consommation = request.body.date_consommation
     let commentaire_personnel = request.body.commentaire_personnel
+    let id_membres = request.body.id_membres
 
-    // on vérifie que ce vin n'est pas déjà dans la base
+    // on vérifie que ce vin n'est pas déjà dans le classement de ce membre
     let ficheVin = require('./models/fichevin')
-    ficheVin.checkIfAlreadyExists(nom, millesime, couleur, (checkIfAlreadyExists) => {
-        if (checkIfAlreadyExists === 'true')
+    ficheVin.checkIfAlreadyExistsInMyRanking(nom, millesime, couleur, id_membres, (checkIfAlreadyExistsInMyRanking) => {
+        if (checkIfAlreadyExistsInMyRanking === 'true')
         {
-            request.flash("erreurInsertion", "Ce vin est déjà dans la base")
+            request.flash("erreurInsertion", "Ce vin est déjà dans votre classement")
             response.redirect('/insertion-vin')
         }
         else
         {
             // on enregistre les valeurs dans la bases
             let etiquette = __dirname + '/public/images/empty.png'
-            ficheVin.insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, (insertId) => {
+            ficheVin.insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, id_membres, (insertId) => {
                 //  on récupère l'id du vin et on nommera la photo comme ça
                 etiquette = __dirname + '/public/images/' + insertId + path.extname(request.files.etiquette.name)
                 // on sauvegarde la photo avec ce nom
                 request.files.etiquette.mv(etiquette, (erreur) => {
                     if (erreur) throw erreur
-                    // on update la valeur du nom de la photo dans la bdd
-                    etiquette = 'assets/images/' + + insertId + path.extname(request.files.etiquette.name)
+                    // on update la valeur du nom de la photo dans la bdd si elle n'est pas déjà dedans
+                    etiquette = 'assets/images/' + insertId + path.extname(request.files.etiquette.name)
                     ficheVin.modifierValeurEtiquette(insertId, etiquette)
                     // on dirige vers la page de classement personnel avec le numéro de l'id du vin à insérer et la couleur de ce vin
                     response.render('pages/classement-personnel', {titre: "classement personnel", insertId: insertId, couleur: couleur, mode: 'insert'})
@@ -186,8 +187,6 @@ app.post('/listepersonnelle', (request, response) => {
     let id_membre = request.body.id_membre
     
     fichevin.getPersonnalListOfTheseWines(couleur, id_membre, (ce_genre_de_cb) => {
-
-        // Il faut trouver le moyen de transférer un objet dans les ejs
         if (ce_genre_de_cb.length === 0) {
             response.send({liste_des_vins_classes: []})
         } else {

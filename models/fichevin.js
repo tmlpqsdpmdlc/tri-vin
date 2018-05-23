@@ -67,78 +67,89 @@ class FicheVin {
         this.classement_general = classement_general
     }
 
-    // get cepages() {
-    //     let listeCepages = []
-    //     connection.query(`select cepages.nom from cepages
-    //     join vins_has_cepages on vins_has_cepages.id_cepages and cepages.id_cepages
-    //     join vins on vins_has_cepages.id_vins and vins.id_vins
-    //     where vins.couleur like ? and vins.id_vins = ?;`, [this.couleur, this.id_vins], (err, rows) => {
-    //         if (err) throw err
-    //         for (let row of rows) {
-    //             listeCepages.push(row)
-    //         }
-    //     })
-    //     return listeCepages
-    // }
-
-    // get vignerons() {
-    //     let listeVignerons = []
-    //     connection.query(`select vignerons.nom from vignerons
-    //     join vins_has_vignerons on vins_has_vignerons.id_vignerons and vignerons.id_vignerons
-    //     join vins on vins_has_vignerons.id_vins and vins.id_vins
-    //     where vins.couleur like ? and vins.id_vins = ?;`, [this.couleur, this.id_vins], (err, rows) => {
-    //         if (err) throw err
-    //         for (let row of rows) {
-    //             listeVignerons.push(row)
-    //         }
-    //     })
-    //     return listeVignerons
-    // }
-
-    static insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, cb) {
+    // On insère un vin s'il est nouveau dans la bdd et ensuite, on insère les données personnelles
+    static insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, id_membres, cb) {
         console.log('insertionVin')
-        connection.query(`insert into vins (nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette) `
-        + `select * from (select ?, ?, ?, ?, ?, ?) as tmp `
+        connection.query(`insert into vins (nom, millesime, couleur, etiquette) `
+        + `select * from (select ?, ?, ?, ?) as tmp `
         + `where not exists( `
         + `select nom, millesime, couleur from vins where nom = ? and millesime = ? and couleur = ? `
         +  `) limit 1;`, 
-            [nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, nom, millesime, couleur], (error, result, fields) => {
+            [nom, millesime, couleur, etiquette, nom, millesime, couleur], (error, result, fields) => {
             if (error) throw error
-            cb(result.insertId)
+
+            let id_vins = result.insertId
+            // 0 si déjà dans la base, on doit aller chercher son id
+            if (id_vins === 0 || id_vins === undefined) {
+                connection.query('select * from vins where nom = ? and millesime = ? and couleur = ?',
+                [nom, millesime, couleur],
+                (error2, results2, fields2) => {
+                    if (error2) throw error2
+                    id_vins = results2[0].id_vins
+                    // insertion des données personnelles
+                    connection.query(`insert into classements_personnels_vins (id_vins, id_membres, commentaire_personnel, date_consommation) `
+                        + `values (?, ?, ?, ?)`,
+                        [id_vins, id_membres, commentaire_personnel, date_consommation],
+                        (error2, result2, fields2) => {
+                            if (error2) throw error2
+                            cb(id_vins)
+                    })
+                })
+            } else {
+                // insertion des données personnelles
+                connection.query(`insert into classements_personnels_vins (id_vins, id_membres, commentaire_personnel, date_consommation) `
+                    + `values (?, ?, ?, ?)`,
+                    [id_vins, id_membres, commentaire_personnel, date_consommation],
+                    (error2, result2, fields2) => {
+                        if (error2) throw error2
+                        cb(id_vins)
+                })
+            }
         })
     }
 
+    // On met à jour la valeur de l'étiquette si elle n'est pas sur empty
     static modifierValeurEtiquette(id_vins, etiquette) {
         console.log('modifierValeurEtiquette')
-        connection.query('update vins set etiquette = ? where id_vins = ?', [etiquette, id_vins], (error, result, fields) => {
+        connection.query("select * from vins where id_vins = ? and etiquette like '%empty%'", [id_vins], (error, results, fields) => {
             if (error) throw error
+            console.log('nbre resultats', results.length)
+            if (results.length >= 1) {
+                connection.query('update vins set etiquette = ? where id_vins = ?', [etiquette, id_vins], (error2, result2, fields2) => {
+                    if (error2) throw error2
+                })
+            }
         })
     }
 
-    // Vérification de si un vin existe déjà
-    static checkIfAlreadyExists(nom, millesime, couleur, cb) {
-        console.log('checkIfAlreadyExists')
-        connection.query('select * from vins where nom like ? and millesime like ? and couleur like ?', [nom, millesime, couleur], (error, result, fields) => {
+    // Vérification de si un vin existe déjà dans le classement d'un membre
+    static checkIfAlreadyExistsInMyRanking(nom, millesime, couleur, id_membres, cb) {
+        console.log('checkIfAlreadyExistsInMyRanking')
+        connection.query(`select * from vins `
+            + `join classements_personnels_vins on classements_personnels_vins.id_vins and vins.id_vins `
+            + `where vins.nom like ? `
+            + `and vins.millesime = ? `
+            + `and vins.couleur like ? `
+            + `and classements_personnels_vins.id_membres = ?;`, 
+        [nom, millesime, couleur, id_membres], 
+        (error, result, fields) => {
             if (error) throw error
             if (result.length >= 1 )
             {
                 cb('true')
-            }
-            else
-            {
+            } else {
                 cb('false')
             }
         })
     }
 
-    // Faire la liste de tous les vins de cette couleur: 0 rouge, 1 blanc, 2 rosé
+    // Faire la liste de vin classée d'une couleur donnée pour un membre
     static getPersonnalListOfTheseWines(couleur, id_membres, cb) {
         console.log('getPersonnalListOfTheseWines')
         connection.query(
             `select * from vins `+
             `join classements_personnels_vins on vins.id_vins = classements_personnels_vins.id_vins `+
-            `join membres on membres.id_membres = classements_personnels_vins.id_membres `+
-            `where membres.id_membres = ? and vins.couleur like ? `+
+            `where classements_personnels_vins.id_membres = ? and vins.couleur like ? and classements_personnels_vins.classements_personnels_vins is not null `+
             `order by classements_personnels_vins.classements_personnels_vins;`,
             [id_membres, couleur],
             (error, results, fields) => {
@@ -149,13 +160,7 @@ class FicheVin {
                 let objetTemporaire = {}
                 for (var i = 0 ; i <= nbreResultats - 1 ; i++) {
                     objetTemporaire.id_vins = results[i].id_vins
-                    objetTemporaire.nom = results[i].nom
-                    objetTemporaire.millesime = results[i].millesime
-                    objetTemporaire.couleur = results[i].couleur
-                    objetTemporaire.date_consommation = moment(results[i].date_consommation)
                     objetTemporaire.etiquette = results[i].etiquette
-                    objetTemporaire.commentaire_personnel = results[i].commentaire_personnel
-                    objetTemporaire.classements_personnels_vins = results[i].classements_personnels_vins
                     retour.push(objetTemporaire)
                     objetTemporaire = new Object()
                 }
@@ -172,8 +177,7 @@ class FicheVin {
         connection.query(
             `select * from vins `+
             `join classements_personnels_vins on vins.id_vins = classements_personnels_vins.id_vins `+
-            `join membres on membres.id_membres = classements_personnels_vins.id_membres `+
-            `where membres.id_membres = ? and vins.couleur like ? `+
+            `where classements_personnels_vins.id_membres = ? and vins.couleur like ? `+
             `order by classements_personnels_vins.classements_personnels_vins;`,
             [id_membres, couleur],
             (error, results, fields) => {
@@ -182,42 +186,23 @@ class FicheVin {
                     if (results[i].classements_personnels_vins >= classements_personnels_vins) {
                         let nvoClassement = results[i].classements_personnels_vins + 1
                         let id_vin = results[i].id_vins
-                        connection.query('update classements_personnels_vins set classements_personnels_vins = ? where id_vins = ? and id_membres = ? ', [nvoClassement, id_vin, id_membres], (error2, results2, fields2) => {
+                        connection.query('update classements_personnels_vins set classements_personnels_vins = ? where id_vins = ? and id_membres = ? ', 
+                        [nvoClassement, id_vin, id_membres], 
+                        (error2, results2, fields2) => {
                             if (error2) throw error2
                         })
                     }
                 }
-                connection.query(`insert into classements_personnels_vins (id_vins, id_membres, classements_personnels_vins) `
-                + `select * from (select ?,?,?) as tmp `
-                + `where not exists( `
-                +   `SELECT id_vins, id_membres FROM classements_personnels_vins WHERE id_vins = ? and id_membres = ? `
-                + `) limit 1;`
-                , [id_vins, id_membres, classements_personnels_vins, id_vins, id_membres], (error2, results2, fields2) => {
+                // On va ajouter sa place au classement
+                connection.query('update classements_personnels_vins set classements_personnels_vins = ? where id_vins = ? and id_membres = ? ', 
+                [classements_personnels_vins, id_vins, id_membres],
+                (error2, results2, fields2) => {
                     if (error2) throw error2
                 })
             }
         )
-
         cb('c\'est bat')
     }
-
-    // static getAllClassementPersonnel(couleur, id_membres, cb) {
-    //     connection.query(`select vins.id_vins, vins.nom, millesime, vins.date_consommation, vins.etiquette, vins.commentaire_personnel, vins.classement_general from vins 
-    //     join classements_personnels_vins on vins.id_vins and classements_personnels_vins.id_vins
-    //     where vins.couleur like ? and classements_personnels_vins.id_membres = ?
-    //     order by classements_personnels_vins.classement_personnel_vins;`, [couleur, id_membres], (err, rows) => {
-    //         if (err) throw err
-    //         cb(rows.map((row) => new FicheVin(row)))
-    //     })
-    // }
-
-    // static getAllClassementGeneral(couleur, cb)
-    // {
-    //     connection.query('select * from vins where couleur like ? order by classement_general', [couleur], (err, rows) => {
-    //         if (err) throw err
-    //         cb(rows.map((row) => new FicheVin(row)))
-    //     })
-    // }
 }
 
 module.exports = FicheVin
