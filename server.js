@@ -89,6 +89,10 @@ app.get('/connexion', (request, response) => {
     response.render('pages/connexion', {titre: "Utilisateur connecté"})
 })
 
+app.get('/ficheVin', (request, response) => {
+    response.render('pages/fichevin', {titre: "Fiche vin"})
+})
+
 app.get('/deconnexion', (request, response) => {
     request.cnx(0,0)
     response.render('pages/deconnexion', {titre: "Utilisateur déconnecté"})
@@ -174,6 +178,27 @@ app.post('/creationcompte', (request, response) => {
 })
 
 // Appels Ajax
+
+// On va chercher dans la base une fiche de vin en différenciant connecté ou déconnecté
+app.post('/getFicheVin', (request, response) => {
+    let fichevin = require('./models/ficheVin')
+    let id_membres = request.body.id_membres
+    let id_vins = request.body.id_vins
+
+    if (id_membres !== false && id_membres !== "false") {
+        // si id_membres alors version co
+        fichevin.getFicheVinWithIdBeingCo(id_vins, id_membres)
+        response.send('co')
+    } else {
+        // si pas d'id membre alors version déco
+        fichevin.getFicheVinWithIdNotBeingCo(id_vins, (data) => {
+            response.send({fichevin: data})
+        })
+        
+    }
+})
+
+// on insère un vin à sa place dans le classement
 app.post('/classerpesonnel', (request, response) => {
     let fichevin = require('./models/ficheVin')
     fichevin.ajouterAuClassementPersonnel(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (ce_genre_de_cb) => {
@@ -181,6 +206,7 @@ app.post('/classerpesonnel', (request, response) => {
     })
 })
 
+// on va chercher le classement personnel pour une couleur donnée
 app.post('/listepersonnelle', (request, response) => {
     let fichevin = require('./models/ficheVin')
     let couleur = request.body.couleur

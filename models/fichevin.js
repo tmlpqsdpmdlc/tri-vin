@@ -203,6 +203,20 @@ class FicheVin {
         )
         cb('c\'est bat')
     }
+  
+    // Obtenir les informations relatives à 1 vin avec son id en étant connecté
+    static getFicheVinWithIdBeingCo(id_vins, id_membres) {
+        console.log("getFicheVinWithIdBeingCo")
+    }
+
+    // Obtenir les informations relatives à 1 vin avec son id en étant déconnecté
+    static getFicheVinWithIdNotBeingCo(id_vins, cb) {
+        console.log("getFicheVinWithIdNotBeingCo")
+        connection.query('select * from vins where id_vins = ?', [id_vins], (error, results, fields) => {
+            if (error) throw error
+            cb(results)
+        })
+    }
 }
 
 module.exports = FicheVin
