@@ -36,5 +36,4 @@ validerFormulaire = function() {
     {
         alert(erreur)
     }
-
 }
