@@ -205,8 +205,17 @@ class FicheVin {
     }
   
     // Obtenir les informations relatives à 1 vin avec son id en étant connecté
-    static getFicheVinWithIdBeingCo(id_vins, id_membres) {
+    static getFicheVinWithIdBeingCo(id_vins, id_membres, cb) {
         console.log("getFicheVinWithIdBeingCo")
+        connection.query(`select * from vins `
+        + `join classements_personnels_vins on classements_personnels_vins.id_vins and vins.id_vins `
+        + `where classements_personnels_vins.id_vins = ? and vins.id_vins = ? and classements_personnels_vins.id_membres = ? `
+        + `limit 1;`, 
+        [id_vins, id_vins, id_membres], 
+        (error, results, fields) => {
+            if (error) throw error
+            cb(results[0])
+        })
     }
 
     // Obtenir les informations relatives à 1 vin avec son id en étant déconnecté
@@ -214,7 +223,7 @@ class FicheVin {
         console.log("getFicheVinWithIdNotBeingCo")
         connection.query('select * from vins where id_vins = ?', [id_vins], (error, results, fields) => {
             if (error) throw error
-            cb(results)
+            cb(results[0])
         })
     }
 }

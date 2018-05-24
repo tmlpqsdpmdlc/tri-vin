@@ -31,10 +31,6 @@ app.get('/classement-personnel', (request, response) => {
     response.render('pages/classement-personnel', {titre: "classement personnel", insertId: false, couleur: false, mode: 'consultation'})
 })
 
-// app.post('/classement-personnel', (request, response) => { 
-    
-// })
-
 app.get('/insertion-vin', (request, response) => {
     response.render('pages/insertion-vin', {titre: 'insertion vin'})
 })
@@ -90,6 +86,7 @@ app.get('/connexion', (request, response) => {
 })
 
 app.get('/ficheVin', (request, response) => {
+    // C'est la page qui déterminera s'il y a un utilisateur connecté
     response.render('pages/fichevin', {titre: "Fiche vin"})
 })
 
@@ -187,14 +184,14 @@ app.post('/getFicheVin', (request, response) => {
 
     if (id_membres !== false && id_membres !== "false") {
         // si id_membres alors version co
-        fichevin.getFicheVinWithIdBeingCo(id_vins, id_membres)
-        response.send('co')
+        fichevin.getFicheVinWithIdBeingCo(id_vins, id_membres, (data) => {
+            response.send(data)
+        })  
     } else {
         // si pas d'id membre alors version déco
         fichevin.getFicheVinWithIdNotBeingCo(id_vins, (data) => {
-            response.send({fichevin: data})
+            response.send(data)
         })
-        
     }
 })
 

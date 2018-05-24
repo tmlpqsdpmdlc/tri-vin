@@ -3,10 +3,66 @@
 <h1>Ceci est la page fiche vin</h1>
 
 <div class="loader"></div>
-<div class="fichevin"></div>
+<div class="fichevin">
+  <table class="ui celled table">
+    <thead>
+      <tr>
+        <th>Données</th>
+        <th>Valeurs</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Nom</td>
+        <td id="nom"></td>
+      </tr>
+      <tr>
+        <td>Millésime</td>
+        <td id="millesime"></td>
+      </tr>
+      <tr>
+        <td>Couleur</td>
+        <td id="couleur"></td>
+      </tr>
+      <tr>
+        <td>Etiquette</td>
+        <td>
+            <img id="etiquette" src="assets/images/empty.png" alt="">
+        </td>
+      </tr>
+      <tr>
+        <td>Classement général</td>
+        <td id="classement_general"></td>
+      </tr>
+      <tr>
+        <td>Classement personnel</td>
+        <td id="classements_personnels_vins"></td>
+      </tr>
+      <tr>
+        <td>Commentaire personnel</td>
+        <td id="commentaire_personnel"></td>
+      </tr>
+      <tr>
+        <td>Date de consommation</td>
+        <td id="date_consommation"></td>
+      </tr>
+      <tr>
+        <td>Vigneron(s)</td>
+        <td id="vignerons"></td>
+      </tr>
+      <tr>
+        <td>Cépage(s)</td>
+        <td id="cepages"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<a href="/" id="retour" class="button ui huge pink">Retour</a>
 
 <p id="id_membres" style="display: none;"><%= locals.cnx %></p>
 
+<script src="/assets/js/dimensionner-image.js"></script>
 <script
   src="https://code.jquery.com/jquery-3.3.1.min.js"
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="

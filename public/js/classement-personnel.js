@@ -59,7 +59,7 @@ affichageTri = function(liste_des_vins_classes) {
     retour = '<button class="ui massive positive button insert" classements_personnels_vins="0">Placer ici</button></br>'
 
     for(var i = 0 ; i < liste_des_vins_classes.length ; i++) {
-        htmlTemporaire += '<a href="/ficheVin?id=' + liste_des_vins_classes[i].id_vins + '" class="etiquette"><img class="imageClassement" src="' + liste_des_vins_classes[i].etiquette + '"></a></br>'
+        htmlTemporaire += '<a href="/ficheVin?id_vins=' + liste_des_vins_classes[i].id_vins + '" class="etiquette"><img class="imageClassement" src="' + liste_des_vins_classes[i].etiquette + '"></a></br>'
         htmlTemporaire += '<button class="ui massive positive button insert" classements_personnels_vins="' + (i + 1) + '">Placer ici</button></br>'
         retour += htmlTemporaire
         htmlTemporaire = ""
