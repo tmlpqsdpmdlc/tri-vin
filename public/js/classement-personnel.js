@@ -59,10 +59,7 @@ affichageTri = function(liste_des_vins_classes) {
     retour = '<button class="ui massive positive button insert" classements_personnels_vins="0">Placer ici</button></br>'
 
     for(var i = 0 ; i < liste_des_vins_classes.length ; i++) {
-
-        console.log(liste_des_vins_classes)
-
-        htmlTemporaire += '<a href="/ficheVin?id=' + liste_des_vins_classes[i].id_vins + '" class="etiquette"><img src="' + liste_des_vins_classes[i].etiquette + '"></a></br>'
+        htmlTemporaire += '<a href="/ficheVin?id=' + liste_des_vins_classes[i].id_vins + '" class="etiquette"><img class="imageClassement" src="' + liste_des_vins_classes[i].etiquette + '"></a></br>'
         htmlTemporaire += '<button class="ui massive positive button insert" classements_personnels_vins="' + (i + 1) + '">Placer ici</button></br>'
         retour += htmlTemporaire
         htmlTemporaire = ""
@@ -76,6 +73,8 @@ var id_membre = $("#id_membre").text()
 var couleur = $("#couleur").text()
 var mode = $("#mode").text()
 var id_vins = $("#insertId").text()
+var containerWidth = $("#container").width()
+var dimensions
 
 // Naviguer entre les onglets et demander le chargement de la liste personnelle des vins
 $(".tabSousMenu").click(function() {
@@ -93,7 +92,16 @@ $(".tabSousMenu").click(function() {
 
         // Mettre en forme les données reçues
         $("#liste_des_vins_classes").html(affichageTri(data.liste_des_vins_classes))
-
+        $("#liste_des_vins_classes").ready(function() {
+            // JS est buggé il faut passer par cette asutuce
+            setTimeout(function(){
+                $(".imageClassement").each(function() {
+                    dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
+                    $(this).css("width", dimensions.largeurImage + "px").css("height", dimensions.hauteurImage + "px")
+                })
+            },10)
+        })
+        
         // Afficher le matériel relatif au mode
         // Rendre les images non clicables
         // Rendre les onglets non clicables
@@ -139,9 +147,8 @@ $(document).on('click', '.insert', function() {
 
 })
 
-
+// Initialiser les onglets et simuler un click pour lancer l'affichage du classement
 $(document).ready(function() {
-    // Initialiser les onglets et simuler un click pour lancer l'affichage du classement
     if (couleur !== "false") {
         $(".tabSousMenu:nth-child(" + ( couleurSingulierToTab(couleur) + 1 ) + ")").addClass("active").click()
     } else {
@@ -150,3 +157,13 @@ $(document).ready(function() {
     }
 })
 
+/**********************Images responsive dynamiquement*******************************/
+window.onresize = function() {
+    containerWidth = $("#container").width()
+    setTimeout(function(){
+        $(".imageClassement").each(function() {
+            dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
+            $(this).css("width", dimensions.largeurImage + "px").css("height", dimensions.hauteurImage + "px")
+        })
+    },10)
+}
