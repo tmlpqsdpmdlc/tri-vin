@@ -168,7 +168,6 @@ app.post('/creationcompte', (request, response) => {
                         response.redirect('/communaute')
                     }
                 })
-                
             }
         })
     }

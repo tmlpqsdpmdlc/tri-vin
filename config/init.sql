@@ -67,7 +67,7 @@ create table classements_personnels_vins (
     id_classements_personnels_vins int primary key auto_increment,
     id_vins int not null,
     id_membres int not null,
-    date_consommation datetime not null,
+    date_consommation date not null,
     classements_personnels_vins int,
     commentaire_personnel text,
     constraint vp1 foreign key (id_vins) references vins(id_vins) on delete cascade,
