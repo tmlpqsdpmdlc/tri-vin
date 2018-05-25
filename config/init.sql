@@ -1,7 +1,3 @@
-create database if not exists trivin;
-
-use trivin;
-
 create table vins (
     id_vins int primary key auto_increment not null,
     nom varchar(255) not null,
