@@ -31,9 +31,9 @@ function probaGagner(ED) {
 function mouvance(proba, victoire) {
     console.log("mouvance")
     if (victoire) {
-        return (1 - proba)
-    } else {
         return (proba - 1)
+    } else {
+        return (1 - proba)
     }
 }
 
@@ -280,6 +280,7 @@ class FicheVin {
         let coteReelle
         let nvelleCoteVin2
         let mouvanceElo
+        let query = ''
 
         // On a besoin des cotes et des nombres de match pour chaque vin
         connection.query(
@@ -312,25 +313,32 @@ class FicheVin {
                         mouvanceElo = mouvementElo(vinCourant.nbr_de_matchs, vinCourant.classement_general, data.classement_general, true)
                         coteReelle += mouvanceElo
                         nvelleCoteVin2 = data.classement_general - mouvanceElo
-                        connection.query("update vins set classement_general = ? where id_vins = ?", [nvelleCoteVin2, data.id_vins], (error2, result2, fields2) => {
-                            if (error2) throw error2
-                        })
+                        query += 'update vins set classement_general = ' + nvelleCoteVin2 + ' where id_vins = ' + data.id_vins + ' ; '
+                        // connection.query("update vins set classement_general = ? where id_vins = ?", [nvelleCoteVin2, data.id_vins], (error2, result2, fields2) => {
+                        //     if (error2) throw error2
+                        // })
                     })
                     
                     perdus.map(function(data) {
                         mouvanceElo = mouvementElo(vinCourant.nbr_de_matchs, vinCourant.classement_general, data.classement_general, false)
                         coteReelle += mouvanceElo
                         nvelleCoteVin2 = data.classement_general - mouvanceElo
-                        connection.query("update vins set classement_general = ? where id_vins = ?", [nvelleCoteVin2, data.id_vins], (error2, result2, fields2) => {
-                            if (error2) throw error2
-                        })
+                        query += 'update vins set classement_general = ' + nvelleCoteVin2 + ' where id_vins = ' + data.id_vins + ' ; '
+                        // connection.query("update vins set classement_general = ? where id_vins = ?", [nvelleCoteVin2, data.id_vins], (error2, result2, fields2) => {
+                        //     if (error2) throw error2
+                        // })
                     })
 
                     // On peut maintenant insérer la cote réelle
-                    connection.query("update vins set classement_general = ? where id_vins = ?", [coteReelle, id_vins], (error2, result2, fields2) => {
+                    query += 'update vins set classement_general = ' + coteReelle + ' where id_vins = ' + id_vins + ' ;'
+                    connection.query(query, [], (error2, result2, fields2) => {
                         if (error2) throw error2
                         cb("ayè c'est dans la boite")
                     })
+                    // connection.query("update vins set classement_general = ? where id_vins = ?", [coteReelle, id_vins], (error2, result2, fields2) => {
+                    //     if (error2) throw error2
+                    //     cb("ayè c'est dans la boite")
+                    // })
                 }
             }
         )
