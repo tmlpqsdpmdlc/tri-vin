@@ -116,27 +116,28 @@ class FicheVin {
         + `where not exists( `
         + `select nom, millesime, couleur from vins where nom = ? and millesime = ? and couleur = ? `
         +  `) limit 1;`, 
-            [nom, millesime, couleur, etiquette, nom, millesime, couleur], (error, result, fields) => {
+            [nom, millesime, couleur, etiquette, nom, millesime, couleur], 
+            (error, result, fields) => {
             if (error) throw error
 
             let id_vins = result.insertId
             // 0 si déjà dans la base, on doit aller chercher son id
             if (id_vins === 0 || id_vins === undefined) {
-                connection.query('select * from vins where nom = ? and millesime = ? and couleur = ?',
+                connection.query('select * from vins where nom like ? and millesime = ? and couleur like ?',
                 [nom, millesime, couleur],
                 (error2, results2, fields2) => {
                     if (error2) throw error2
                     id_vins = results2[0].id_vins
                     // insertion des données personnelles
                     connection.query(`insert into classements_personnels_vins (id_vins, id_membres, commentaire_personnel, date_consommation) `
-                        + `select * from  (select ?, ?, ?, ?) as tmp `
-                        + `where not exists ( `
+                        + `select * from (select ? as idvins, ? as idmembres, ?, ?) as tmp `
+                        + `where not exists( `
                         + `    select id_vins, id_membres from classements_personnels_vins WHERE id_vins = ? and id_membres = ? `
                         + `) `
                         + `limit 1;`,
                         [id_vins, id_membres, commentaire_personnel, date_consommation, id_vins, id_membres],
-                        (error2, result2, fields2) => {
-                            if (error2) throw error2
+                        (error3, results3, fields3) => {
+                            if (error3) throw error3
                             cb(id_vins)
                     })
                 })
@@ -170,17 +171,24 @@ class FicheVin {
     static checkIfAlreadyExistsInMyRanking(nom, millesime, couleur, id_membres, cb) {
         console.log('checkIfAlreadyExistsInMyRanking')
         connection.query(`select * from vins `
-            + `join classements_personnels_vins on classements_personnels_vins.id_vins and vins.id_vins `
-            + `where vins.nom like ? `
-            + `and vins.millesime = ? `
-            + `and vins.couleur like ? `
-            + `and classements_personnels_vins.id_membres = ?;`, 
-        [nom, millesime, couleur, id_membres], 
-        (error, result, fields) => {
+            + `where nom like ? `
+            + `and millesime = ? `
+            + `and couleur like ? ;`, 
+        [nom, millesime, couleur], 
+        (error, results, fields) => {
             if (error) throw error
-            if (result.length >= 1 )
+            if (results.length >= 1 )
             {
-                cb('true')
+                let id_vins = results[0].id_vins
+                connection.query('select * from classements_personnels_vins where id_membres = ? and id_vins = ? ;',
+                [id_membres, id_vins],
+                (error2, results2, fields2) => {
+                    if (results2.length >= 1) {
+                        cb('true')
+                    } else {
+                        cb('false')
+                    }
+                })
             } else {
                 cb('false')
             }
@@ -314,9 +322,6 @@ class FicheVin {
                         coteReelle += mouvanceElo
                         nvelleCoteVin2 = data.classement_general - mouvanceElo
                         query += 'update vins set classement_general = ' + nvelleCoteVin2 + ' where id_vins = ' + data.id_vins + ' ; '
-                        // connection.query("update vins set classement_general = ? where id_vins = ?", [nvelleCoteVin2, data.id_vins], (error2, result2, fields2) => {
-                        //     if (error2) throw error2
-                        // })
                     })
                     
                     perdus.map(function(data) {
@@ -324,9 +329,6 @@ class FicheVin {
                         coteReelle += mouvanceElo
                         nvelleCoteVin2 = data.classement_general - mouvanceElo
                         query += 'update vins set classement_general = ' + nvelleCoteVin2 + ' where id_vins = ' + data.id_vins + ' ; '
-                        // connection.query("update vins set classement_general = ? where id_vins = ?", [nvelleCoteVin2, data.id_vins], (error2, result2, fields2) => {
-                        //     if (error2) throw error2
-                        // })
                     })
 
                     // On peut maintenant insérer la cote réelle
@@ -335,10 +337,6 @@ class FicheVin {
                         if (error2) throw error2
                         cb("ayè c'est dans la boite")
                     })
-                    // connection.query("update vins set classement_general = ? where id_vins = ?", [coteReelle, id_vins], (error2, result2, fields2) => {
-                    //     if (error2) throw error2
-                    //     cb("ayè c'est dans la boite")
-                    // })
                 }
             }
         )
