@@ -2,6 +2,47 @@ let connection = require('../config/db')
 let moment = require('moment')
 moment.locale('fr')
 
+/**************pour le classement général, méthodes privées*********************/
+// Calcul du coefficient de volatilité
+function coeffK(nbr_de_matchs, cote) {
+    console.log("coeffK")
+    if (nbr_de_matchs <= 30) {
+        return 40
+    } else if (nbr_de_matchs > 30 && cote <= 2400) {
+        return 20
+    } else {
+        return 10
+    }
+}
+
+// Calcul du coefficient d'écart
+function ED(coteVin1, coteVin2) {
+    console.log("ED")
+    return ((coteVin2 - coteVin1) / 400)
+}
+
+// Calcul de la probabilité de gagner
+function probaGagner(ED) {
+    console.log("probaGagner")
+    return (1 / ( 1 + Math.pow(10,ED)))
+}
+
+// Caclul du coefficient de "mouvance"
+function mouvance(proba, victoire) {
+    console.log("mouvance")
+    if (victoire) {
+        return (1 - proba)
+    } else {
+        return (proba - 1)
+    }
+}
+
+// fonction complète
+function mouvementElo(nbr_de_matchs, coteVin1, coteVin2, victoire) {
+    console.log("mouvementElo")
+    return (coeffK(nbr_de_matchs, coteVin1) * mouvance(probaGagner(ED(coteVin1, coteVin2)), victoire))
+}
+
 class FicheVin {
 
     constructor() {
@@ -70,8 +111,8 @@ class FicheVin {
     // On insère un vin s'il est nouveau dans la bdd et ensuite, on insère les données personnelles
     static insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, id_membres, cb) {
         console.log('insertionVin')
-        connection.query(`insert into vins (nom, millesime, couleur, etiquette) `
-        + `select * from (select ?, ?, ?, ?) as tmp `
+        connection.query(`insert into vins (nom, millesime, couleur, etiquette, classement_general, nbr_de_matchs) `
+        + `select * from (select ?, ?, ?, ?, 1500, 0) as tmp `
         + `where not exists( `
         + `select nom, millesime, couleur from vins where nom = ? and millesime = ? and couleur = ? `
         +  `) limit 1;`, 
@@ -88,8 +129,12 @@ class FicheVin {
                     id_vins = results2[0].id_vins
                     // insertion des données personnelles
                     connection.query(`insert into classements_personnels_vins (id_vins, id_membres, commentaire_personnel, date_consommation) `
-                        + `values (?, ?, ?, ?)`,
-                        [id_vins, id_membres, commentaire_personnel, date_consommation],
+                        + `select * from  (select ?, ?, ?, ?) as tmp `
+                        + `where not exists ( `
+                        + `    select id_vins, id_membres from classements_personnels_vins WHERE id_vins = ? and id_membres = ? `
+                        + `) `
+                        + `limit 1;`,
+                        [id_vins, id_membres, commentaire_personnel, date_consommation, id_vins, id_membres],
                         (error2, result2, fields2) => {
                             if (error2) throw error2
                             cb(id_vins)
@@ -113,7 +158,6 @@ class FicheVin {
         console.log('modifierValeurEtiquette')
         connection.query("select * from vins where id_vins = ? and etiquette like '%empty%'", [id_vins], (error, results, fields) => {
             if (error) throw error
-            console.log('nbre resultats', results.length)
             if (results.length >= 1) {
                 connection.query('update vins set etiquette = ? where id_vins = ?', [etiquette, id_vins], (error2, result2, fields2) => {
                     if (error2) throw error2
@@ -155,10 +199,10 @@ class FicheVin {
             (error, results, fields) => {
                 if (error) throw error
                 // On doit maintenant séparer les objets reçus et les mettre dans un tableau
-                let nbreResultats = results.length
+                let nbrResultats = results.length
                 let retour = []
                 let objetTemporaire = {}
-                for (var i = 0 ; i <= nbreResultats - 1 ; i++) {
+                for (var i = 0 ; i <= nbrResultats - 1 ; i++) {
                     objetTemporaire.id_vins = results[i].id_vins
                     objetTemporaire.etiquette = results[i].etiquette
                     retour.push(objetTemporaire)
@@ -198,10 +242,10 @@ class FicheVin {
                 [classements_personnels_vins, id_vins, id_membres],
                 (error2, results2, fields2) => {
                     if (error2) throw error2
+                    cb('c\'est bat')
                 })
             }
         )
-        cb('c\'est bat')
     }
   
     // Obtenir les informations relatives à 1 vin avec son id en étant connecté
@@ -225,6 +269,71 @@ class FicheVin {
             if (error) throw error
             cb(results[0])
         })
+    }
+
+    // Ajouter un vin au classement général
+    static ajouterAuClassementGeneral(id_vins, id_membres, couleur, classements_personnels_vins, cb) {
+        console.log("ajouterAuClassementGeneral")
+        let gagnes = []
+        let perdus = []
+        let vinCourant
+        let coteReelle
+        let nvelleCoteVin2
+        let mouvanceElo
+
+        // On a besoin des cotes et des nombres de match pour chaque vin
+        connection.query(
+            `select * from vins `+
+            `join classements_personnels_vins on vins.id_vins = classements_personnels_vins.id_vins `+
+            `where classements_personnels_vins.id_membres = ? and vins.couleur like ? and classements_personnels_vins.classements_personnels_vins is not null `+
+            `order by classements_personnels_vins.classements_personnels_vins;`,
+            [id_membres, couleur],
+            (error, results, fields) => {
+                if (error) throw error
+                if (results.length === 1) {
+                    // Pas besoin de faire de match vu que c'est le seul vin enregistré
+                    cb("ayè c'est dans la boite")
+                } else {
+                    // on doit distinguer les vins que l'on gagne et ceux que l'on perd
+                    for (var i = 0 ; i < results.length ; i++) {
+                        if (results[i].classements_personnels_vins < classements_personnels_vins) {
+                            gagnes.push(results[i])
+                        } else if (results[i].classements_personnels_vins > classements_personnels_vins){
+                            perdus.push(results[i])
+                        }
+                        else {
+                            vinCourant = results[i]
+                        }
+                    }
+
+                    // On doit maintenant calculer d'une part la coteReelle et d'autre part modifier la cote des autres vins
+                    coteReelle = vinCourant.classement_general
+                    gagnes.map(function(data) {
+                        mouvanceElo = mouvementElo(vinCourant.nbr_de_matchs, vinCourant.classement_general, data.classement_general, true)
+                        coteReelle += mouvanceElo
+                        nvelleCoteVin2 = data.classement_general - mouvanceElo
+                        connection.query("update vins set classement_general = ? where id_vins = ?", [nvelleCoteVin2, data.id_vins], (error2, result2, fields2) => {
+                            if (error2) throw error2
+                        })
+                    })
+                    
+                    perdus.map(function(data) {
+                        mouvanceElo = mouvementElo(vinCourant.nbr_de_matchs, vinCourant.classement_general, data.classement_general, false)
+                        coteReelle += mouvanceElo
+                        nvelleCoteVin2 = data.classement_general - mouvanceElo
+                        connection.query("update vins set classement_general = ? where id_vins = ?", [nvelleCoteVin2, data.id_vins], (error2, result2, fields2) => {
+                            if (error2) throw error2
+                        })
+                    })
+
+                    // On peut maintenant insérer la cote réelle
+                    connection.query("update vins set classement_general = ? where id_vins = ?", [coteReelle, id_vins], (error2, result2, fields2) => {
+                        if (error2) throw error2
+                        cb("ayè c'est dans la boite")
+                    })
+                }
+            }
+        )
     }
 }
 

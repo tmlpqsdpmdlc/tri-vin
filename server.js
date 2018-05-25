@@ -198,7 +198,9 @@ app.post('/getFicheVin', (request, response) => {
 app.post('/classerpesonnel', (request, response) => {
     let fichevin = require('./models/ficheVin')
     fichevin.ajouterAuClassementPersonnel(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (ce_genre_de_cb) => {
-        response.send('c\'est ok')
+        fichevin.ajouterAuClassementGeneral(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (cb) => {
+            response.send('c\'est ok')
+        })
     })
 })
 

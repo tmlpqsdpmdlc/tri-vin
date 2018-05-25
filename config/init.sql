@@ -1,3 +1,5 @@
+drop database trivin;
+
 create database if not exists trivin;
 
 use trivin;
@@ -8,7 +10,8 @@ create table vins (
     millesime varchar(4) not null,
     couleur varchar(5) not null,
     etiquette text not null, 
-    classement_general int
+    classement_general decimal,
+    nbr_de_matchs int
 );
 
 create table cepages (
