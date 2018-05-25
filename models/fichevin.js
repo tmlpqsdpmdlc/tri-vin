@@ -289,6 +289,7 @@ class FicheVin {
         let nvelleCoteVin2
         let mouvanceElo
         let query = ''
+        let nbr_de_matchs
 
         // On a besoin des cotes et des nombres de match pour chaque vin
         connection.query(
@@ -321,18 +322,21 @@ class FicheVin {
                         mouvanceElo = mouvementElo(vinCourant.nbr_de_matchs, vinCourant.classement_general, data.classement_general, true)
                         coteReelle += mouvanceElo
                         nvelleCoteVin2 = data.classement_general - mouvanceElo
-                        query += 'update vins set classement_general = ' + nvelleCoteVin2 + ' where id_vins = ' + data.id_vins + ' ; '
+                        nbr_de_matchs = data.nbr_de_matchs + 1
+                        query += 'update vins set classement_general = ' + nvelleCoteVin2 + ',nbr_de_matchs = ' + nbr_de_matchs + ' where id_vins = ' + data.id_vins + ' ; '
                     })
                     
                     perdus.map(function(data) {
                         mouvanceElo = mouvementElo(vinCourant.nbr_de_matchs, vinCourant.classement_general, data.classement_general, false)
                         coteReelle += mouvanceElo
                         nvelleCoteVin2 = data.classement_general - mouvanceElo
-                        query += 'update vins set classement_general = ' + nvelleCoteVin2 + ' where id_vins = ' + data.id_vins + ' ; '
+                        nbr_de_matchs = data.nbr_de_matchs + 1
+                        query += 'update vins set classement_general = ' + nvelleCoteVin2 + ',nbr_de_matchs = ' + nbr_de_matchs + ' where id_vins = ' + data.id_vins + ' ; '
                     })
 
                     // On peut maintenant insérer la cote réelle
-                    query += 'update vins set classement_general = ' + coteReelle + ' where id_vins = ' + id_vins + ' ;'
+                    nbr_de_matchs = results.length - 1
+                    query += 'update vins set classement_general = ' + coteReelle + ',nbr_de_matchs = ' + nbr_de_matchs + ' where id_vins = ' + id_vins + ' ;'
                     connection.query(query, [], (error2, result2, fields2) => {
                         if (error2) throw error2
                         cb("ayè c'est dans la boite")
