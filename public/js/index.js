@@ -56,11 +56,9 @@ couleurSingulierToTab = function(couleur) {
 // Afficher les vins dans le DOM
 affichageTri = function(liste_des_vins_classes) {
     htmlTemporaire = ""
-    retour = '<button class="ui massive positive button insert" classements_personnels_vins="0">Placer ici</button></br>'
-
+    let retour = ""
     for(var i = 0 ; i < liste_des_vins_classes.length ; i++) {
         htmlTemporaire += '<a href="/ficheVin?id_vins=' + liste_des_vins_classes[i].id_vins + '" class="etiquette"><img class="imageClassement" src="' + liste_des_vins_classes[i].etiquette + '"></a></br>'
-        htmlTemporaire += '<button class="ui massive positive button insert" classements_personnels_vins="' + (i + 1) + '">Placer ici</button></br>'
         retour += htmlTemporaire
         htmlTemporaire = ""
     }
@@ -68,10 +66,7 @@ affichageTri = function(liste_des_vins_classes) {
 }
 
 /******************************Mécanique de la page**********************************/
-var id_membre = $("#id_membre").text()
 var couleur = $("#couleur").text()
-var mode = $("#mode").text()
-var id_vins = $("#insertId").text()
 var containerWidth = $("#container").width()
 var dimensions
 
@@ -83,8 +78,8 @@ $(".tabSousMenu").click(function() {
 
     couleur = tabToCouleurSingulier($("#onglets").find("a").index(this))
 
-    // getPersonnalListOfTheseWines (async)
-    $.post('/listepersonnelle', {id_membre: id_membre, couleur: couleur}, function() {
+    // getListOfTheseWines (async)
+    $.post('/listegenerale', {couleur: couleur}, function() {
         $(".loader").show()
     }).done(function( data ) {
         $(".loader").hide()
@@ -100,36 +95,6 @@ $(".tabSousMenu").click(function() {
                 })
             },10)
         })
-        
-        // Afficher le matériel relatif au mode
-        // Rendre les images non clicables
-        // Rendre les onglets non clicables
-        if (mode === "insert") {
-
-            // Insertion automatique du premier vin au classement
-            if (data.liste_des_vins_classes.length === 0) {
-                mode = "consultation"
-                $.post('/classerpesonnel', {id_membres: id_membre, couleur: couleur, id_vins: id_vins, classements_personnels_vins: 0}, function() {
-                    // envoie des données au serveur
-                }).done(function( data ) {
-                    $('.active').click()
-                })
-            }
-
-            $(".insert").show()
-            $(".consultation").hide()
-            $(".etiquette, .tabSousMenu").css('pointer-events', 'none')
-            $('.insert').css('pointer-events', 'auto')
-        } else if (mode === "consultation"){
-            $(".insert").hide()
-            $(".consultation").show()
-            $(".etiquette, .tabSousMenu").css('pointer-events', 'auto')
-        } else {
-            $(".insert").hide()
-            $(".consultation").hide()
-            $(".etiquette, .tabSousMenu").css('pointer-events', 'auto')
-        }
-
     })
 })
 

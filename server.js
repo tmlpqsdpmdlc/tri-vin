@@ -24,7 +24,7 @@ app.use(fileUpload())
 
 // Routes
 app.get('/', (request, response) => { 
-    response.render('pages/index', {titre: "page d'accueil"})
+    response.render('pages/index', {titre: "page d'accueil", couleur: false})
 })
 
 app.get('/classement-personnel', (request, response) => { 
@@ -184,7 +184,14 @@ app.post('/getFicheVin', (request, response) => {
     if (id_membres !== false && id_membres !== "false") {
         // si id_membres alors version co
         fichevin.getFicheVinWithIdBeingCo(id_vins, id_membres, (data) => {
-            response.send(data)
+            if (data === undefined) {
+                // Cas où ce vin a été ajouté par qqn d'autre
+                fichevin.getFicheVinWithIdNotBeingCo(id_vins, (data) => {
+                    response.send(data)
+                })
+            } else {
+                response.send(data)
+            }
         })  
     } else {
         // si pas d'id membre alors version déco
@@ -211,6 +218,20 @@ app.post('/listepersonnelle', (request, response) => {
     let id_membre = request.body.id_membre
     
     fichevin.getPersonnalListOfTheseWines(couleur, id_membre, (ce_genre_de_cb) => {
+        if (ce_genre_de_cb.length === 0) {
+            response.send({liste_des_vins_classes: []})
+        } else {
+            response.send({liste_des_vins_classes: ce_genre_de_cb})
+        }
+    })
+})
+
+// on va chercher le classement général pour une couleur donnée
+app.post('/listegenerale', (request, response) => {
+    let fichevin = require('./models/ficheVin')
+    let couleur = request.body.couleur
+    
+    fichevin.getListOfTheseWines(couleur, (ce_genre_de_cb) => {
         if (ce_genre_de_cb.length === 0) {
             response.send({liste_des_vins_classes: []})
         } else {

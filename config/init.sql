@@ -1,5 +1,3 @@
-drop database trivin;
-
 create database if not exists trivin;
 
 use trivin;

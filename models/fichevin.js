@@ -48,66 +48,6 @@ class FicheVin {
     constructor() {
     }
 
-    get id_vins() {
-        return this.id_vins
-    }
-
-    get nom() {
-        return this.nom
-    }
-
-    set nom(nom) {
-        this.nom = nom
-    }
-
-    get millesime() {
-        return this.millesime
-    }
-
-    set millesime(millesime) {
-        this.millesime = millesime
-    }
-
-    get couleur() {
-        return this.couleur
-    }
-
-    set couleur(couleur) {
-        this.couleur = couleur
-    }
-
-    get date_consommation() {
-        return moment(this.date_consommation)
-    }
-
-    set date_consommation(date_consommation) {
-        this.date_consommation = date_consommation
-    }
-
-    get etiquette() {
-        return this.etiquette
-    }
-
-    set etiquette(etiquette) {
-        this.etiquette = etiquette
-    }
-
-    get commentaire_personnel() {
-        return this.commentaire_personnel
-    }
-
-    set commentaire_personnel(commentaire_personnel) {
-        this.commentaire_personnel = commentaire_personnel
-    }
-
-    get classement_general() {
-        return this.classement_general
-    }
-
-    set classement_general(classement_general) {
-        this.classement_general = classement_general
-    }
-
     // On insère un vin s'il est nouveau dans la bdd et ensuite, on insère les données personnelles
     static insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, id_membres, cb) {
         console.log('insertionVin')
@@ -219,6 +159,25 @@ class FicheVin {
                 cb(retour)
             }
         )
+    }
+
+    // Obtenir le classement général d'une couleur de vin
+    static getListOfTheseWines(couleur, cb) {
+        console.log('getListOfTheseWines')
+        connection.query('select * from vins where couleur like ? order by classement_general DESC', [couleur], (error, results, fields) => {
+            if (error) throw error
+            // On doit maintenant séparer les objets reçus et les mettre dans un tableau
+            let nbrResultats = results.length
+            let retour = []
+            let objetTemporaire = {}
+            for (var i = 0 ; i <= nbrResultats - 1 ; i++) {
+                objetTemporaire.id_vins = results[i].id_vins
+                objetTemporaire.etiquette = results[i].etiquette
+                retour.push(objetTemporaire)
+                objetTemporaire = new Object()
+            }
+            cb(retour)
+        })
     }
 
     // ajouter un vin au classement personnel
