@@ -2,10 +2,10 @@ let connection = require('../config/db')
 let moment = require('moment')
 moment.locale('fr')
 
-/**************pour le classement général, méthodes privées*********************/
+/**************private methods for the general ranking*********************/
 // Calcul du coefficient de volatilité
 function coeffK(nbr_de_matchs, cote) {
-    console.log("coeffK")
+    console.log('coeffK')
     if (nbr_de_matchs <= 30) {
         return 40
     } else if (nbr_de_matchs > 30 && cote <= 2400) {
@@ -16,20 +16,21 @@ function coeffK(nbr_de_matchs, cote) {
 }
 
 // Calcul du coefficient d'écart
+// Calculate gap coefficient
 function ED(coteVin1, coteVin2) {
-    console.log("ED")
+    console.log('ED')
     return ((coteVin2 - coteVin1) / 400)
 }
 
-// Calcul de la probabilité de gagner
+// calculate the winrate
 function probaGagner(ED) {
-    console.log("probaGagner")
+    console.log('probaGagner')
     return (1 / ( 1 + Math.pow(10,ED)))
 }
 
-// Caclul du coefficient de "mouvance"
+// Calculate the motion coefficient
 function mouvance(proba, victoire) {
-    console.log("mouvance")
+    console.log('mouvance')
     if (victoire) {
         return (proba - 1)
     } else {
@@ -37,9 +38,9 @@ function mouvance(proba, victoire) {
     }
 }
 
-// fonction complète
+// complete function
 function mouvementElo(nbr_de_matchs, coteVin1, coteVin2, victoire) {
-    console.log("mouvementElo")
+    console.log('mouvementElo')
     return (coeffK(nbr_de_matchs, coteVin1) * mouvance(probaGagner(ED(coteVin1, coteVin2)), victoire))
 }
 
@@ -48,7 +49,7 @@ class FicheVin {
     constructor() {
     }
 
-    // On insère un vin s'il est nouveau dans la bdd et ensuite, on insère les données personnelles
+    // Insert a wine if it's new in the db and then, insert the personnal datas
     static insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, id_membres, cb) {
         console.log('insertionVin')
         connection.query(`insert into vins (nom, millesime, couleur, etiquette, classement_general, nbr_de_matchs) `
@@ -56,20 +57,20 @@ class FicheVin {
         + `where not exists( `
         + `select nom, millesime, couleur from vins where nom = ? and millesime = ? and couleur = ? `
         +  `) limit 1;`, 
-            [nom, millesime, couleur, etiquette, nom, millesime, couleur], 
-            (error, result, fields) => {
+        [nom, millesime, couleur, etiquette, nom, millesime, couleur], 
+        (error, result, fields) => {
             if (error) throw error
 
             let id_vins = result.insertId
-            // 0 si déjà dans la base, on doit aller chercher son id
+            // 0 if already in the db, we need to get its id
             if (id_vins === 0 || id_vins === undefined) {
                 connection.query('select * from vins where nom like ? and millesime = ? and couleur like ?',
-                [nom, millesime, couleur],
-                (error2, results2, fields2) => {
-                    if (error2) throw error2
-                    id_vins = results2[0].id_vins
-                    // insertion des données personnelles
-                    connection.query(`insert into classements_personnels_vins (id_vins, id_membres, commentaire_personnel, date_consommation) `
+                    [nom, millesime, couleur],
+                    (error2, results2, fields2) => {
+                        if (error2) throw error2
+                        id_vins = results2[0].id_vins
+                        // Insertion of personnal datas
+                        connection.query(`insert into classements_personnels_vins (id_vins, id_membres, commentaire_personnel, date_consommation) `
                         + `select * from (select ? as idvins, ? as idmembres, ?, ?) as tmp `
                         + `where not exists( `
                         + `    select id_vins, id_membres from classements_personnels_vins WHERE id_vins = ? and id_membres = ? `
@@ -79,22 +80,22 @@ class FicheVin {
                         (error3, results3, fields3) => {
                             if (error3) throw error3
                             cb(id_vins)
+                        })
                     })
-                })
             } else {
-                // insertion des données personnelles
+                // Insertion of personnal datas
                 connection.query(`insert into classements_personnels_vins (id_vins, id_membres, commentaire_personnel, date_consommation) `
                     + `values (?, ?, ?, ?)`,
-                    [id_vins, id_membres, commentaire_personnel, date_consommation],
-                    (error2, result2, fields2) => {
-                        if (error2) throw error2
-                        cb(id_vins)
+                [id_vins, id_membres, commentaire_personnel, date_consommation],
+                (error2, result2, fields2) => {
+                    if (error2) throw error2
+                    cb(id_vins)
                 })
             }
         })
     }
 
-    // On met à jour la valeur de l'étiquette si elle n'est pas sur empty
+    // update the label if it's not on empty
     static modifierValeurEtiquette(id_vins, etiquette) {
         console.log('modifierValeurEtiquette')
         connection.query("select * from vins where id_vins = ? and etiquette like '%empty%'", [id_vins], (error, results, fields) => {
@@ -107,7 +108,7 @@ class FicheVin {
         })
     }
 
-    // Vérification de si un vin existe déjà dans le classement d'un membre
+    // Check if a wine already exist in a user own ranking
     static checkIfAlreadyExistsInMyRanking(nom, millesime, couleur, id_membres, cb) {
         console.log('checkIfAlreadyExistsInMyRanking')
         connection.query(`select * from vins `
@@ -121,14 +122,15 @@ class FicheVin {
             {
                 let id_vins = results[0].id_vins
                 connection.query('select * from classements_personnels_vins where id_membres = ? and id_vins = ? ;',
-                [id_membres, id_vins],
-                (error2, results2, fields2) => {
-                    if (results2.length >= 1) {
-                        cb('true')
-                    } else {
-                        cb('false')
+                    [id_membres, id_vins],
+                    (error2, results2, fields2) => {
+                        if (results2.length >= 1) {
+                            cb('true')
+                        } else {
+                            cb('false')
+                        }
                     }
-                })
+                )
             } else {
                 cb('false')
             }
@@ -136,6 +138,7 @@ class FicheVin {
     }
 
     // Faire la liste de vin classée d'une couleur donnée pour un membre
+    // Get the personnal list of wines ordered by ranking for one color
     static getPersonnalListOfTheseWines(couleur, id_membres, cb) {
         console.log('getPersonnalListOfTheseWines')
         connection.query(
@@ -146,7 +149,7 @@ class FicheVin {
             [id_membres, couleur],
             (error, results, fields) => {
                 if (error) throw error
-                // On doit maintenant séparer les objets reçus et les mettre dans un tableau
+                // then, separate the received objects and put them in an array
                 let nbrResultats = results.length
                 let retour = []
                 let objetTemporaire = {}
@@ -161,12 +164,12 @@ class FicheVin {
         )
     }
 
-    // Obtenir le classement général d'une couleur de vin
+    // Get the general ranking of a wine color
     static getListOfTheseWines(couleur, cb) {
         console.log('getListOfTheseWines')
         connection.query('select * from vins where couleur like ? order by classement_general DESC', [couleur], (error, results, fields) => {
             if (error) throw error
-            // On doit maintenant séparer les objets reçus et les mettre dans un tableau
+            // then, separate the received objects and put them in an array
             let nbrResultats = results.length
             let retour = []
             let objetTemporaire = {}
@@ -180,11 +183,11 @@ class FicheVin {
         })
     }
 
-    // ajouter un vin au classement personnel
+    // add a wine to the personnal ranking
     static ajouterAuClassementPersonnel(id_vins, id_membres, couleur, classements_personnels_vins, cb) {
         console.log('ajouterAuClassementPersonnel')
 
-        // On va incrémenter le classement personnel de tous les vins de classement supérieur ou égal
+        // Increment the personnal ranking of all wines beyond this one
         connection.query(
             `select * from vins `+
             `join classements_personnels_vins on vins.id_vins = classements_personnels_vins.id_vins `+
@@ -198,26 +201,28 @@ class FicheVin {
                         let nvoClassement = results[i].classements_personnels_vins + 1
                         let id_vin = results[i].id_vins
                         connection.query('update classements_personnels_vins set classements_personnels_vins = ? where id_vins = ? and id_membres = ? ', 
-                        [nvoClassement, id_vin, id_membres], 
-                        (error2, results2, fields2) => {
-                            if (error2) throw error2
-                        })
+                            [nvoClassement, id_vin, id_membres], 
+                            (error2, results2, fields2) => {
+                                if (error2) throw error2
+                            }
+                        )
                     }
                 }
-                // On va ajouter sa place au classement
+                // Update its own rank
                 connection.query('update classements_personnels_vins set classements_personnels_vins = ? where id_vins = ? and id_membres = ? ', 
-                [classements_personnels_vins, id_vins, id_membres],
-                (error2, results2, fields2) => {
-                    if (error2) throw error2
-                    cb('c\'est bat')
-                })
+                    [classements_personnels_vins, id_vins, id_membres],
+                    (error2, results2, fields2) => {
+                        if (error2) throw error2
+                        cb('c\'est bat')
+                    }
+                )
             }
         )
     }
   
-    // Obtenir les informations relatives à 1 vin avec son id en étant connecté
+    // Get informations relative to 1 wine with its id and being logged in
     static getFicheVinWithIdBeingCo(id_vins, id_membres, cb) {
-        console.log("getFicheVinWithIdBeingCo")
+        console.log('getFicheVinWithIdBeingCo')
         connection.query(`select * from vins `
         + `join classements_personnels_vins on classements_personnels_vins.id_vins and vins.id_vins `
         + `where classements_personnels_vins.id_vins = ? and vins.id_vins = ? and classements_personnels_vins.id_membres = ? `
@@ -229,18 +234,18 @@ class FicheVin {
         })
     }
 
-    // Obtenir les informations relatives à 1 vin avec son id en étant déconnecté
+    // Get informations relative to 1 wine with its id and not being logged in
     static getFicheVinWithIdNotBeingCo(id_vins, cb) {
-        console.log("getFicheVinWithIdNotBeingCo")
+        console.log('getFicheVinWithIdNotBeingCo')
         connection.query('select * from vins where id_vins = ?', [id_vins], (error, results, fields) => {
             if (error) throw error
             cb(results[0])
         })
     }
 
-    // Ajouter un vin au classement général
+    // Add a wine to the general ranking
     static ajouterAuClassementGeneral(id_vins, id_membres, couleur, classements_personnels_vins, cb) {
-        console.log("ajouterAuClassementGeneral")
+        console.log('ajouterAuClassementGeneral')
         let gagnes = []
         let perdus = []
         let vinCourant
@@ -250,7 +255,7 @@ class FicheVin {
         let query = ''
         let nbr_de_matchs
 
-        // On a besoin des cotes et des nombres de match pour chaque vin
+        // we needs the general ranking and the matchs number for each wine
         connection.query(
             `select * from vins `+
             `join classements_personnels_vins on vins.id_vins = classements_personnels_vins.id_vins `+
@@ -260,10 +265,10 @@ class FicheVin {
             (error, results, fields) => {
                 if (error) throw error
                 if (results.length === 1) {
-                    // Pas besoin de faire de match vu que c'est le seul vin enregistré
-                    cb("ayè c'est dans la boite")
+                    // No need to do a match if it's the only one
+                    cb('ayè c\'est dans la boite')
                 } else {
-                    // on doit distinguer les vins que l'on gagne et ceux que l'on perd
+                    // Distinguish the winner and the looser wines
                     for (var i = 0 ; i < results.length ; i++) {
                         if (results[i].classements_personnels_vins < classements_personnels_vins) {
                             gagnes.push(results[i])
@@ -275,7 +280,7 @@ class FicheVin {
                         }
                     }
 
-                    // On doit maintenant calculer d'une part la coteReelle et d'autre part modifier la cote des autres vins
+                    // Calculate the reel value of this wine and the new value of the others
                     coteReelle = vinCourant.classement_general
                     gagnes.map(function(data) {
                         mouvanceElo = mouvementElo(vinCourant.nbr_de_matchs, vinCourant.classement_general, data.classement_general, true)
@@ -293,12 +298,12 @@ class FicheVin {
                         query += 'update vins set classement_general = ' + nvelleCoteVin2 + ',nbr_de_matchs = ' + nbr_de_matchs + ' where id_vins = ' + data.id_vins + ' ; '
                     })
 
-                    // On peut maintenant insérer la cote réelle
+                    // Insert the real ranking
                     nbr_de_matchs = results.length - 1
                     query += 'update vins set classement_general = ' + coteReelle + ',nbr_de_matchs = ' + nbr_de_matchs + ' where id_vins = ' + id_vins + ' ;'
                     connection.query(query, [], (error2, result2, fields2) => {
                         if (error2) throw error2
-                        cb("ayè c'est dans la boite")
+                        cb('ayè c\'est dans la boite')
                     })
                 }
             }
