@@ -1,7 +1,7 @@
 // Redimensionnement de l'image pour que sa diagonale soit de 424px
 // Si le côté horizontal est plus large que le container avec cette taille de diago, on diminuera encore un peu
 // on renvoie les dimensions que sont censés faire les côtés
-dimensionnerImage = function(largeurImage, hauteurImage, containerWidth) {
+function dimensionnerImage(largeurImage, hauteurImage, containerWidth) {
     let a = largeurImage
     let b = hauteurImage
     let diagonale = 424
