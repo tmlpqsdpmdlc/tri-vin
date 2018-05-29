@@ -5,7 +5,7 @@ let session = require('express-session')
 let fileUpload = require('express-fileupload')
 let path = require('path')
 
-// Moteur de template
+// Template engine
 app.set('view engine', 'ejs')
 
 // Middleware
@@ -24,11 +24,11 @@ app.use(fileUpload())
 
 // Routes
 app.get('/', (request, response) => { 
-    response.render('pages/index', {titre: "page d'accueil", couleur: false})
+    response.render('pages/index', {titre: 'page d\'accueil', couleur: false})
 })
 
 app.get('/classement-personnel', (request, response) => { 
-    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: false, couleur: false, mode: 'consultation'})
+    response.render('pages/classement-personnel', {titre: 'classement personnel', insertId: false, couleur: false, mode: 'consultation'})
 })
 
 app.get('/insertion-vin', (request, response) => {
@@ -36,7 +36,7 @@ app.get('/insertion-vin', (request, response) => {
 })
 
 app.post('/insertion-vin', (request, response) => {
-    // on enregistre les valeurs reçues du formulaire
+    // Save datas from the form
     let nom = request.body.nom
     let millesime = request.body.millesime
     let couleur = request.body.couleur
@@ -44,29 +44,29 @@ app.post('/insertion-vin', (request, response) => {
     let commentaire_personnel = request.body.commentaire_personnel
     let id_membres = request.body.id_membres
 
-    // on vérifie que ce vin n'est pas déjà dans le classement de ce membre
+    // Check if this wine isn't already in the member ranking
     let ficheVin = require('./models/fichevin')
     ficheVin.checkIfAlreadyExistsInMyRanking(nom, millesime, couleur, id_membres, (checkIfAlreadyExistsInMyRanking) => {
         if (checkIfAlreadyExistsInMyRanking === 'true')
         {
-            request.flash("erreurInsertion", "Ce vin est déjà dans votre classement")
+            request.flash('erreurInsertion', 'Ce vin est déjà dans votre classement')
             response.redirect('/insertion-vin')
         }
         else
         {
-            // on enregistre les valeurs dans la bases
+            // save data in the db
             let etiquette = __dirname + '/public/images/empty.png'
             ficheVin.insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, id_membres, (insertId) => {
-                //  on récupère l'id du vin et on nommera la photo comme ça
+                // get the wine id and name the picture with it
                 etiquette = __dirname + '/public/images/' + insertId + path.extname(request.files.etiquette.name)
-                // on sauvegarde la photo avec ce nom
+                // write the picture with this name
                 request.files.etiquette.mv(etiquette, (erreur) => {
                     if (erreur) throw erreur
-                    // on update la valeur du nom de la photo dans la bdd si elle n'est pas déjà dedans
+                    // update the picture's name value in the db if it's not already there
                     etiquette = 'assets/images/' + insertId + path.extname(request.files.etiquette.name)
                     ficheVin.modifierValeurEtiquette(insertId, etiquette)
-                    // on dirige vers la page de classement personnel avec le numéro de l'id du vin à insérer et la couleur de ce vin
-                    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: insertId, couleur: couleur, mode: 'insert'})
+                    // locate towards the page classement-personnnel with the wine id to insert and the color of this wine
+                    response.render('pages/classement-personnel', {titre: 'classement personnel', insertId: insertId, couleur: couleur, mode: 'insert'})
                 })
             })
         }
@@ -74,49 +74,49 @@ app.post('/insertion-vin', (request, response) => {
 })
 
 app.get('/communaute', (request, response) => { 
-    response.render('pages/communaute', {titre: "communauté"})
+    response.render('pages/communaute', {titre: 'communauté'})
 })
 
 app.get('/creationcompte', (request, response) => { 
-    response.render('pages/creationcompte', {titre: "Compte créée"})
+    response.render('pages/creationcompte', {titre: 'Compte créée'})
 })
 
 app.get('/connexion', (request, response) => {
-    response.render('pages/connexion', {titre: "Utilisateur connecté"})
+    response.render('pages/connexion', {titre: 'Utilisateur connecté'})
 })
 
 app.get('/ficheVin', (request, response) => {
-    // C'est la page qui déterminera s'il y a un utilisateur connecté
-    response.render('pages/fichevin', {titre: "Fiche vin"})
+    // The page will control if the user is logged in
+    response.render('pages/fichevin', {titre: 'Fiche vin'})
 })
 
 app.get('/deconnexion', (request, response) => {
     request.cnx(0,0)
-    response.render('pages/deconnexion', {titre: "Utilisateur déconnecté"})
+    response.render('pages/deconnexion', {titre: 'Utilisateur déconnecté'})
 })
 
 app.post('/connexion', (request, response) => {
-    // On doit vérifier si l'utilisateur se connecte bien 
+    // check if the user wrote correctly in the form
     if (request.body.email === undefined || 
         request.body.email === '' || 
         request.body.psw === undefined ||
         request.body.psw === ''
     )
     {
-        request.flash("erreurConnexion", "Veuillez saisir un email et un mot de passe pour vous connecter")
+        request.flash('erreurConnexion', 'Veuillez saisir un email et un mot de passe pour vous connecter')
         response.redirect('/communaute')
     }
     else
     {
         let ficheMembre = require('./models/fichemembre')
         ficheMembre.connexion(request.body.email, request.body.psw, (retour) => {
-            if (retour !== "Erreur") {
+            if (retour !== 'Erreur') {
                 request.cnx(1, retour)
                 response.redirect('/connexion')
             }
             else
             {
-                request.flash("erreurConnexion", "Erreur lors de la connexion, veuillez vérifier vos identifiants.")
+                request.flash('erreurConnexion', 'Erreur lors de la connexion, veuillez vérifier vos identifiants.')
                 response.redirect('/communaute')
             }
         })
@@ -124,7 +124,7 @@ app.post('/connexion', (request, response) => {
 })
 
 app.post('/creationcompte', (request, response) => {
-    // On vérifie que tous les champs sont biens remplis avant d'insérer
+    // check every fields before inserting
     if (request.body.email1 === undefined ||
         request.body.email1 === '' ||
         request.body.email2 === undefined ||
@@ -135,31 +135,31 @@ app.post('/creationcompte', (request, response) => {
         request.body.psw2 === ''
     )
     {
-        request.flash('errorCreation', "Tous les champs n'ont pas été saisis")
+        request.flash('errorCreation', 'Tous les champs n\'ont pas été saisis')
         response.redirect('/communaute')
     }
     else
     {
         let ficheMembre = require('./models/fichemembre')
         ficheMembre.validerFormulaireCreationCompte(request.body.email1, request.body.email2, request.body.psw1, request.body.psw2, (email, psw) => {
-            let messageErreur = ""
+            let messageErreur = ''
             if (email === false)
             {
-                messageErreur = "Les emails sont différents. "
+                messageErreur = 'Les emails sont différents. '
             }
 
             if (psw === false) {
-                messageErreur += "Les mots de passes sont différents. "
+                messageErreur += 'Les mots de passes sont différents. '
             }
 
-            if (messageErreur !== "") {
+            if (messageErreur !== '') {
                 request.flash('errorCreation', messageErreur)
                 response.redirect('/communaute')
             }
             else
             {
                 ficheMembre.addMembre(request.body.email1, request.body.psw1, (res) => {
-                    if (res === "") {
+                    if (res === '') {
                         response.redirect('/creationcompte')
                     }
                     else
@@ -173,19 +173,19 @@ app.post('/creationcompte', (request, response) => {
     }
 })
 
-// Appels Ajax
+// Ajax calls
 
-// On va chercher dans la base une fiche de vin en différenciant connecté ou déconnecté
+// search in the db a wine folder differenciating logged in or not
 app.post('/getFicheVin', (request, response) => {
     let fichevin = require('./models/ficheVin')
     let id_membres = request.body.id_membres
     let id_vins = request.body.id_vins
 
-    if (id_membres !== false && id_membres !== "false") {
-        // si id_membres alors version co
+    if (id_membres !== false && id_membres !== 'false') {
+        // if id_membres then logged in
         fichevin.getFicheVinWithIdBeingCo(id_vins, id_membres, (data) => {
             if (data === undefined) {
-                // Cas où ce vin a été ajouté par qqn d'autre
+                // Case when this wine was already inserted by someone else
                 fichevin.getFicheVinWithIdNotBeingCo(id_vins, (data) => {
                     response.send(data)
                 })
@@ -194,24 +194,24 @@ app.post('/getFicheVin', (request, response) => {
             }
         })  
     } else {
-        // si pas d'id membre alors version déco
+        // if no id_membres the not logged in version
         fichevin.getFicheVinWithIdNotBeingCo(id_vins, (data) => {
             response.send(data)
         })
     }
 })
 
-// on insère un vin à sa place dans le classement
+// insert a wine at its right place in the ranking
 app.post('/classerpesonnel', (request, response) => {
     let fichevin = require('./models/ficheVin')
     fichevin.ajouterAuClassementPersonnel(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (ce_genre_de_cb) => {
         fichevin.ajouterAuClassementGeneral(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (cb) => {
-            response.send('c\'est ok')
+            response.send({message: 'c\'est ok', cb1: ce_genre_de_cb, cb2: cb})
         })
     })
 })
 
-// on va chercher le classement personnel pour une couleur donnée
+// look for the personal ranking for a chosen color
 app.post('/listepersonnelle', (request, response) => {
     let fichevin = require('./models/ficheVin')
     let couleur = request.body.couleur
@@ -226,7 +226,7 @@ app.post('/listepersonnelle', (request, response) => {
     })
 })
 
-// on va chercher le classement général pour une couleur donnée
+// look for in the general ranking for a chosen color
 app.post('/listegenerale', (request, response) => {
     let fichevin = require('./models/ficheVin')
     let couleur = request.body.couleur

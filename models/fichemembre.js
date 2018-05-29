@@ -14,7 +14,7 @@ class FicheMembre {
         return this.row.email
     }
 
-    // Méthodes statiques
+    // static methods
     static addMembre(email, psw, cb) {
 
         connection.query('select * from membres where email like ?;', email, (err, rows) => {

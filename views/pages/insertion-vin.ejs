@@ -56,7 +56,7 @@
 
 <script src="/assets/js/dimensionner-image.js"></script>
 <script>
-    // Gestion de la date max de l'input de date
+    // Handle the max date of the date input
     var today = new Date()
     var dd = today.getDate()
     var mm = today.getMonth()+1
@@ -73,11 +73,12 @@
     today = yyyy+'-'+mm+'-'+dd
     document.getElementById("date_consommation").setAttribute("max", today)
 
-    // Affichage de l'image que l'utilisateur a chargé
+    // Display the user image
     var loadFile = (event) => {
         var displayImage = document.getElementById("displayImage")
         var containerWidth = document.getElementById("container").clientWidth
-        // On remet le style à zéro au cas où on charge une nouvelle image
+
+        // Reset style in case of there is a new image
         displayImage.style = ""
 
         displayImage.onload = function() {
