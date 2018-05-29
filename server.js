@@ -24,11 +24,11 @@ app.use(fileUpload())
 
 // Routes
 app.get('/', (request, response) => { 
-    response.render('pages/index', {titre: "page d'accueil", couleur: false})
+    response.render('pages/index', {titre: 'page d\'accueil', couleur: false})
 })
 
 app.get('/classement-personnel', (request, response) => { 
-    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: false, couleur: false, mode: 'consultation'})
+    response.render('pages/classement-personnel', {titre: 'classement personnel', insertId: false, couleur: false, mode: 'consultation'})
 })
 
 app.get('/insertion-vin', (request, response) => {
@@ -49,7 +49,7 @@ app.post('/insertion-vin', (request, response) => {
     ficheVin.checkIfAlreadyExistsInMyRanking(nom, millesime, couleur, id_membres, (checkIfAlreadyExistsInMyRanking) => {
         if (checkIfAlreadyExistsInMyRanking === 'true')
         {
-            request.flash("erreurInsertion", "Ce vin est déjà dans votre classement")
+            request.flash('erreurInsertion', 'Ce vin est déjà dans votre classement')
             response.redirect('/insertion-vin')
         }
         else
@@ -66,7 +66,7 @@ app.post('/insertion-vin', (request, response) => {
                     etiquette = 'assets/images/' + insertId + path.extname(request.files.etiquette.name)
                     ficheVin.modifierValeurEtiquette(insertId, etiquette)
                     // on dirige vers la page de classement personnel avec le numéro de l'id du vin à insérer et la couleur de ce vin
-                    response.render('pages/classement-personnel', {titre: "classement personnel", insertId: insertId, couleur: couleur, mode: 'insert'})
+                    response.render('pages/classement-personnel', {titre: 'classement personnel', insertId: insertId, couleur: couleur, mode: 'insert'})
                 })
             })
         }
@@ -74,25 +74,25 @@ app.post('/insertion-vin', (request, response) => {
 })
 
 app.get('/communaute', (request, response) => { 
-    response.render('pages/communaute', {titre: "communauté"})
+    response.render('pages/communaute', {titre: 'communauté'})
 })
 
 app.get('/creationcompte', (request, response) => { 
-    response.render('pages/creationcompte', {titre: "Compte créée"})
+    response.render('pages/creationcompte', {titre: 'Compte créée'})
 })
 
 app.get('/connexion', (request, response) => {
-    response.render('pages/connexion', {titre: "Utilisateur connecté"})
+    response.render('pages/connexion', {titre: 'Utilisateur connecté'})
 })
 
 app.get('/ficheVin', (request, response) => {
     // C'est la page qui déterminera s'il y a un utilisateur connecté
-    response.render('pages/fichevin', {titre: "Fiche vin"})
+    response.render('pages/fichevin', {titre: 'Fiche vin'})
 })
 
 app.get('/deconnexion', (request, response) => {
     request.cnx(0,0)
-    response.render('pages/deconnexion', {titre: "Utilisateur déconnecté"})
+    response.render('pages/deconnexion', {titre: 'Utilisateur déconnecté'})
 })
 
 app.post('/connexion', (request, response) => {
@@ -103,20 +103,20 @@ app.post('/connexion', (request, response) => {
         request.body.psw === ''
     )
     {
-        request.flash("erreurConnexion", "Veuillez saisir un email et un mot de passe pour vous connecter")
+        request.flash('erreurConnexion', 'Veuillez saisir un email et un mot de passe pour vous connecter')
         response.redirect('/communaute')
     }
     else
     {
         let ficheMembre = require('./models/fichemembre')
         ficheMembre.connexion(request.body.email, request.body.psw, (retour) => {
-            if (retour !== "Erreur") {
+            if (retour !== 'Erreur') {
                 request.cnx(1, retour)
                 response.redirect('/connexion')
             }
             else
             {
-                request.flash("erreurConnexion", "Erreur lors de la connexion, veuillez vérifier vos identifiants.")
+                request.flash('erreurConnexion', 'Erreur lors de la connexion, veuillez vérifier vos identifiants.')
                 response.redirect('/communaute')
             }
         })
@@ -135,31 +135,31 @@ app.post('/creationcompte', (request, response) => {
         request.body.psw2 === ''
     )
     {
-        request.flash('errorCreation', "Tous les champs n'ont pas été saisis")
+        request.flash('errorCreation', 'Tous les champs n\'ont pas été saisis')
         response.redirect('/communaute')
     }
     else
     {
         let ficheMembre = require('./models/fichemembre')
         ficheMembre.validerFormulaireCreationCompte(request.body.email1, request.body.email2, request.body.psw1, request.body.psw2, (email, psw) => {
-            let messageErreur = ""
+            let messageErreur = ''
             if (email === false)
             {
-                messageErreur = "Les emails sont différents. "
+                messageErreur = 'Les emails sont différents. '
             }
 
             if (psw === false) {
-                messageErreur += "Les mots de passes sont différents. "
+                messageErreur += 'Les mots de passes sont différents. '
             }
 
-            if (messageErreur !== "") {
+            if (messageErreur !== '') {
                 request.flash('errorCreation', messageErreur)
                 response.redirect('/communaute')
             }
             else
             {
                 ficheMembre.addMembre(request.body.email1, request.body.psw1, (res) => {
-                    if (res === "") {
+                    if (res === '') {
                         response.redirect('/creationcompte')
                     }
                     else
@@ -181,7 +181,7 @@ app.post('/getFicheVin', (request, response) => {
     let id_membres = request.body.id_membres
     let id_vins = request.body.id_vins
 
-    if (id_membres !== false && id_membres !== "false") {
+    if (id_membres !== false && id_membres !== 'false') {
         // si id_membres alors version co
         fichevin.getFicheVinWithIdBeingCo(id_vins, id_membres, (data) => {
             if (data === undefined) {
@@ -206,7 +206,7 @@ app.post('/classerpesonnel', (request, response) => {
     let fichevin = require('./models/ficheVin')
     fichevin.ajouterAuClassementPersonnel(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (ce_genre_de_cb) => {
         fichevin.ajouterAuClassementGeneral(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (cb) => {
-            response.send('c\'est ok')
+            response.send({message: 'c\'est ok', cb1: ce_genre_de_cb, cb2: cb})
         })
     })
 })
