@@ -5,18 +5,18 @@ var id_membres = $('#id_membres').text()
 var containerWidth
 var dimensions
 
-// On va masquer les tr vides lors de la construction de la page
+// Hide empty tr when building the page
 $('td').click(function() {
     if ($(this).text() === '' || $(this).text() === undefined) {
         $(this).parent().hide()
     }
 })
 
-// On va chercher dans la base le vin à afficher
+// Search in the db for the wine to display
 $(document).ready(function() {
     let objectToSend = {id_vins: id_vins, id_membres: 'toto'}
 
-    // on différencie le cas connecté et déconnecté
+    // differenciate logged in or not
     if (id_membres === false 
         || id_membres === 'false'
         || id_membres === '') {
@@ -32,7 +32,7 @@ $(document).ready(function() {
         $('.loader').hide()
         $('.fichevin').show()
 
-        // Restitution des données
+        // Display datas
         $('#nom').append(data.nom)
         $('#millesime').append(data.millesime)
         $('#etiquette').attr('src', data.etiquette)
@@ -42,11 +42,11 @@ $(document).ready(function() {
         $('#commentaire_personnel').append(data.commentaire_personnel).click()
         $('#date_consommation').append(data.date_consommation).click()
 
-        // En attendant de les implémenter, on les prépare
+        // Waiting for evols
         $('#vignerons').click()
         $('#cepages').click()
 
-        // JS est buggé, il faut utiliser l'astuce du setTimeout pour utiliser la fct dimensionnerImage
+        // Js has a bug, it needs to use setTime Out
         setTimeout(function() {
             containerWidth = $('#container').width()
             dimensions = dimensionnerImage($('#etiquette').width(), $('#etiquette').height(), containerWidth)

@@ -1,4 +1,4 @@
-// Afficher les vins dans le DOM
+// Display wines in the DOM
 function affichageTri(liste_des_vins_classes) {
     let htmlTemporaire = ''
     let retour = '<button class="ui massive positive button insert" classements_personnels_vins="0">Placer ici</button></br>'
@@ -12,7 +12,7 @@ function affichageTri(liste_des_vins_classes) {
     return retour
 }
 
-/******************************Mécanique de la page**********************************/
+/******************************Page mecanics**********************************/
 var id_membre = $('#id_membre').text()
 var couleur = $('#couleur').text()
 var mode = $('#mode').text()
@@ -20,7 +20,7 @@ var id_vins = $('#insertId').text()
 var containerWidth = $('#container').width()
 var dimensions
 
-// Naviguer entre les onglets et demander le chargement de la liste personnelle des vins
+// Navigate between the tabs and start the loading of the personnal wine list
 $('.tabSousMenu').click(function() {
 
     $('.tabSousMenu').removeClass('active')
@@ -28,16 +28,15 @@ $('.tabSousMenu').click(function() {
 
     couleur = tabToCouleurSingulier($('#onglets').find('a').index(this))
 
-    // getPersonnalListOfTheseWines (async)
     $.post('/listepersonnelle', {id_membre: id_membre, couleur: couleur}, function() {
         $('.loader').show()
     }).done(function( data ) {
         $('.loader').hide()
 
-        // Mettre en forme les données reçues
+        // Get in shape the received datas
         $('#liste_des_vins_classes').html(affichageTri(data.liste_des_vins_classes))
         $('#liste_des_vins_classes').ready(function() {
-            // JS est buggé il faut passer par cette asutuce
+            // Js has a bug, it needs to use setTime Out
             setTimeout(function(){
                 $('.imageClassement').each(function() {
                     dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
@@ -45,17 +44,17 @@ $('.tabSousMenu').click(function() {
                 })
             },10)
         })
-        
-        // Afficher le matériel relatif au mode
-        // Rendre les images non clicables
-        // Rendre les onglets non clicables
+
+        // Display mode stuff
+        // Get the pictures unclickable
+        // Get the tabs unclickable
         if (mode === 'insert') {
 
-            // Insertion automatique du premier vin au classement
+            // Auto insertion of the first wine of the ranking
             if (data.liste_des_vins_classes.length === 0) {
                 mode = 'consultation'
                 $.post('/classerpesonnel', {id_membres: id_membre, couleur: couleur, id_vins: id_vins, classements_personnels_vins: 0}, function() {
-                    // envoie des données au serveur
+                    // Send the datas to the server
                 }).done(function(data) {
                     $('.active').click()
                 })
@@ -78,20 +77,20 @@ $('.tabSousMenu').click(function() {
     })
 })
 
-// Insérer un vin à l'emplacement désiré puis rechargement du classement en mode consultation
+// Insert a wine at the wanted spot and then reload the ranking in consultation mode
 $(document).on('click', '.insert', function() {
     let classements_personnels_vins = $(this).attr('classements_personnels_vins')
     mode = 'consultation'
 
     $.post('/classerpesonnel', {id_membres: id_membre, couleur: couleur, id_vins: id_vins, classements_personnels_vins: classements_personnels_vins}, function() {
-        // envoie des données au serveur
+        // Send the datas to the server
     }).done(function(data) {
         $('.active').click()
     })
 
 })
 
-// Initialiser les onglets et simuler un click pour lancer l'affichage du classement
+// Initiate the tabs and simulate a click for starting the ranking display
 $(document).ready(function() {
     if (couleur !== 'false') {
         $('.tabSousMenu:nth-child(' + ( couleurSingulierToTab(couleur) + 1 ) + ')').addClass('active').click()

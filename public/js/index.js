@@ -1,4 +1,4 @@
-// Afficher les vins dans le DOM
+// Display the wines in the dom
 function affichageTri(liste_des_vins_classes) {
     let htmlTemporaire = ''
     let retour = ''
@@ -10,12 +10,12 @@ function affichageTri(liste_des_vins_classes) {
     return retour
 }
 
-/******************************Mécanique de la page**********************************/
+/******************************Page mecanics**********************************/
 var couleur = $('#couleur').text()
 var containerWidth = $('#container').width()
 var dimensions
 
-// Naviguer entre les onglets et demander le chargement de la liste personnelle des vins
+// Navigate between the tabs and ask for loading the personnal list of wines
 $('.tabSousMenu').click(function() {
 
     $('.tabSousMenu').removeClass('active')
@@ -23,16 +23,15 @@ $('.tabSousMenu').click(function() {
 
     couleur = tabToCouleurSingulier($('#onglets').find('a').index(this))
 
-    // getListOfTheseWines (async)
     $.post('/listegenerale', {couleur: couleur}, function() {
         $('.loader').show()
     }).done(function( data ) {
         $('.loader').hide()
 
-        // Mettre en forme les données reçues
+        // Get in shape the received datas
         $('#liste_des_vins_classes').html(affichageTri(data.liste_des_vins_classes))
         $('#liste_des_vins_classes').ready(function() {
-            // JS est buggé il faut passer par cette asutuce
+            // Js has a bug, it needs to use setTime Out
             setTimeout(function(){
                 $('.imageClassement').each(function() {
                     dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
@@ -43,7 +42,7 @@ $('.tabSousMenu').click(function() {
     })
 })
 
-// Initialiser les onglets et simuler un click pour lancer l'affichage du classement
+// Initiate the tabs and simulate a click for starting the ranking display
 $(document).ready(function() {
     if (couleur !== 'false') {
         $('.tabSousMenu:nth-child(' + ( couleurSingulierToTab(couleur) + 1 ) + ')').addClass('active').click()
@@ -53,7 +52,7 @@ $(document).ready(function() {
     }
 })
 
-/**********************Images responsive dynamiquement*******************************/
+/**********************Dynamic responsive pictures*******************************/
 window.onresize = function() {
     containerWidth = $('#container').width()
     setTimeout(function(){

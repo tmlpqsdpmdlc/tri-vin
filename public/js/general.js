@@ -1,5 +1,5 @@
 /******************************Fonctions*****************************************/
-// Fonction pour supprimer les accents
+// Delete accents
 function removeAccents(str) {
     var accents    = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
     var accentsOut = 'AAAAAAaaaaaaOOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNnSsYyyZz';
@@ -14,7 +14,7 @@ function removeAccents(str) {
     return str.join('');
 }
 
-// Obtenir la couleur au singulier depuis le numéro de l'onglet
+// Get the color at plural from the tab number
 function tabToCouleurPlurielle(tab) {
     if (tab === 0) {
         return 'rouges'
@@ -27,7 +27,7 @@ function tabToCouleurPlurielle(tab) {
     }
 }
 
-// Obtenir la couleur au singulier depuis le numéro de l'onglet
+// Get the color at singular from the tab number
 function tabToCouleurSingulier(tab) {
     if (tab === 0) {
         return 'rouge'
@@ -40,7 +40,7 @@ function tabToCouleurSingulier(tab) {
     }
 }
 
-// Obtenir le numéro de l'onglet depuis la couleur au singulier
+// get tab number from singular color
 function couleurSingulierToTab(couleur) {
     if (couleur === 'false' || couleur === 'rouge') {
         return 0
