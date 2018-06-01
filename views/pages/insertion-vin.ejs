@@ -8,51 +8,55 @@
     </div>
 <% } %>
 
-<form method="post" enctype="multipart/form-data" action="/insertion-vin" class="ui form" id="insertion-vin">
+<div class="loader" id="loader" style="display: none;"></div>
 
-    <div class="required field">
-        <label for="nom">Nom</label>
-        <input type="text" name="nom" id="nom" placeholder="Nom">
-    </div>
+<div id="partie-formulaire">
+    <form method="post" enctype="multipart/form-data" action="/insertion-vin" class="ui form" id="insertion-vin">
 
-    <div class="required field">
-        <label for="millesime">Millésime</label>
-        <input type="number" name="millesime" id="millesime" placeholder="Millésime" pattern=".{4}">
-    </div>
+        <div class="required field">
+            <label for="nom">Nom</label>
+            <input type="text" name="nom" id="nom" placeholder="Nom">
+        </div>
     
-    <div class="required field">
-        <label for="couleur">Couleur</label>
-        <select id="couleur" name="couleur">
-            <option value="rouge">Rouge</option>
-            <option value="blanc">Blanc</option>
-            <option value="rose">Rosé</option>
-        </select>
-    </div>
-
-    <div class="required field">
-        <label for="date_consommation">Date de consommation</label>
-        <input type="date" name="date_consommation" id="date_consommation" min='1800-01-01'>
-    </div>
-
-    <div class="required field">
-        <label for="etiquette">Image de l'étiquette</label>
-        <input type="file" accept="image/*" id="etiquette" name="etiquette" onchange="loadFile(event)">
-    </div>
-
-    <img id="displayImage" style="display: none;">
-
-    <div class="field">
-        <label for="commentaire_personnel">Commentaires personnels</label>
-        <textarea name="commentaire_personnel" id="commentaire_personnel"></textarea>
-    </div>
-
-    <input type="text" id="id_membres" name="id_membres" style="display: none;" value="<%= locals.cnx %>">
+        <div class="required field">
+            <label for="millesime">Millésime</label>
+            <input type="number" name="millesime" id="millesime" placeholder="Millésime" pattern=".{4}">
+        </div>
+        
+        <div class="required field">
+            <label for="couleur">Couleur</label>
+            <select id="couleur" name="couleur">
+                <option value="rouge">Rouge</option>
+                <option value="blanc">Blanc</option>
+                <option value="rose">Rosé</option>
+            </select>
+        </div>
     
-</form>
-
-<button class="ui blue labeled submit icon button" style="margin-top: 20px;" onclick="validerFormulaire()">
-    <i class="icon save outline"></i>Enregistrer ce vin
-</button>
+        <div class="required field">
+            <label for="date_consommation">Date de consommation</label>
+            <input type="date" name="date_consommation" id="date_consommation" min='1800-01-01'>
+        </div>
+    
+        <div class="required field">
+            <label for="etiquette">Image de l'étiquette</label>
+            <input type="file" accept="image/*" id="etiquette" name="etiquette" onchange="loadFile(event)">
+        </div>
+    
+        <img id="displayImage" style="display: none;">
+    
+        <div class="field">
+            <label for="commentaire_personnel">Commentaires personnels</label>
+            <textarea name="commentaire_personnel" id="commentaire_personnel"></textarea>
+        </div>
+    
+        <input type="text" id="id_membres" name="id_membres" style="display: none;" value="<%= locals.cnx %>">
+        
+    </form>
+    
+    <button class="ui blue labeled submit icon button" style="margin-top: 20px;" onclick="validerFormulaire()">
+        <i class="icon save outline"></i>Enregistrer ce vin
+    </button>
+</div>
 
 <script src="/assets/js/dimensionner-image.js"></script>
 <script>

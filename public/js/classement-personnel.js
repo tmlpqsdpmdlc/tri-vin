@@ -31,7 +31,7 @@ $('.tabSousMenu').click(function() {
     $.post('/listepersonnelle', {id_membre: id_membre, couleur: couleur}, function() {
         $('.loader').show()
     }).done(function( data ) {
-        $('.loader').hide()
+        
 
         // Get in shape the received datas
         $('#liste_des_vins_classes').html(affichageTri(data.liste_des_vins_classes))
@@ -41,6 +41,7 @@ $('.tabSousMenu').click(function() {
                 $('.imageClassement').each(function() {
                     dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
                     $(this).css('width', dimensions.largeurImage + 'px').css('height', dimensions.hauteurImage + 'px')
+                    $('.loader').hide()
                 })
             },10)
         })
