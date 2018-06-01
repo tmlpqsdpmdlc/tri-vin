@@ -35,17 +35,32 @@ class FicheMembre {
     }
 
     static validerFormulaireCreationCompte(email1, email2, psw1, psw2, cb) {
-        let email = false
-        let psw = false
+        console.log('validerFormulaireCreationCompte')
+        let erreur_email = ''
+        let erreur_psw = ''
+        let regex_mail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        let regex_psw = /^[0-9a-zA-Z]{6,}$/
 
         if (email1 === email2) {
-            email = true
+            if (regex_mail.test(String(email1).toLowerCase())) {
+                erreur_email = true
+            } else {
+                erreur_email = 'Veuillez entrer un email valide. '
+            }
+        } else {
+            erreur_email = 'Les mails sont différents. '
         }
 
         if (psw1 === psw2) {
-            psw = true
+            if (regex_psw.test(String(psw1).toLowerCase())) {
+                erreur_psw = true
+            } else {
+                erreur_psw = 'Le mot de passe ne doit pas contenir de caractères spéciaux et doit faire au moins 6 caractères. '
+            }
+        } else {
+            erreur_psw = 'Les mots de passe sont différents. '
         }
-        cb(email, psw)
+        cb(erreur_email, erreur_psw)
     }
 
     static connexion(email, psw, cb) {

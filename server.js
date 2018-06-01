@@ -143,13 +143,13 @@ app.post('/creationcompte', (request, response) => {
         let ficheMembre = require('./models/fichemembre')
         ficheMembre.validerFormulaireCreationCompte(request.body.email1, request.body.email2, request.body.psw1, request.body.psw2, (email, psw) => {
             let messageErreur = ''
-            if (email === false)
+            if (email !== true)
             {
-                messageErreur = 'Les emails sont différents. '
+                messageErreur += email
             }
 
-            if (psw === false) {
-                messageErreur += 'Les mots de passes sont différents. '
+            if (psw !== true) {
+                messageErreur += psw
             }
 
             if (messageErreur !== '') {
