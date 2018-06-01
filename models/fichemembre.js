@@ -1,4 +1,5 @@
 let connection = require('../config/db')
+let hash = require('hash.js')
 
 class FicheMembre {
 
@@ -24,7 +25,8 @@ class FicheMembre {
             }
             else
             {
-                connection.query('insert into membres set email = ?, password = ?', [email, psw], (err, res) => {
+                let hashed_psw = hash.sha256().update(psw).digest('hex')
+                connection.query('insert into membres set email = ?, password = ?', [email, hashed_psw], (err, res) => {
                     if (err) throw err
                     cb("")
                 })
@@ -47,7 +49,8 @@ class FicheMembre {
     }
 
     static connexion(email, psw, cb) {
-        connection.query('select * from membres where email like ? and password like ?', [email, psw], (err, rows) => {
+        let hashed_psw = hash.sha256().update(psw).digest('hex')
+        connection.query('select * from membres where email like ? and password like ?', [email, hashed_psw], (err, rows) => {
             if (err) throw err
             if(rows.length !== 1) {
                 cb("Erreur")
