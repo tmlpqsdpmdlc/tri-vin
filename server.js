@@ -28,7 +28,12 @@ app.get('/', (request, response) => {
 })
 
 app.get('/classement-personnel', (request, response) => { 
-    response.render('pages/classement-personnel', {titre: 'classement personnel', insertId: false, couleur: false, mode: 'consultation'})
+    let couleur = request.query.couleur
+    if (couleur === '' || couleur === undefined) {
+        couleur = false
+    }
+
+    response.render('pages/classement-personnel', {titre: 'classement personnel', insertId: false, couleur: couleur, mode: 'consultation'})
 })
 
 app.get('/insertion-vin', (request, response) => {
@@ -143,13 +148,13 @@ app.post('/creationcompte', (request, response) => {
         let ficheMembre = require('./models/fichemembre')
         ficheMembre.validerFormulaireCreationCompte(request.body.email1, request.body.email2, request.body.psw1, request.body.psw2, (email, psw) => {
             let messageErreur = ''
-            if (email === false)
+            if (email !== true)
             {
-                messageErreur = 'Les emails sont différents. '
+                messageErreur += email
             }
 
-            if (psw === false) {
-                messageErreur += 'Les mots de passes sont différents. '
+            if (psw !== true) {
+                messageErreur += psw
             }
 
             if (messageErreur !== '') {
@@ -239,6 +244,5 @@ app.post('/listegenerale', (request, response) => {
         }
     })
 })
-
 
 app.listen(8080)

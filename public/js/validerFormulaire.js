@@ -30,6 +30,8 @@ function validerFormulaire() {
 
     if (erreur === undefined || erreur === '')
     {
+        $('#partie-formulaire').hide()
+        $('#loader').show()
         document.getElementById('insertion-vin').submit()
     }
     else

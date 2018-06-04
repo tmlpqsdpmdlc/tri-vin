@@ -14,6 +14,9 @@ $('td').click(function() {
 
 // Search in the db for the wine to display
 $(document).ready(function() {
+    $('.loader').show()
+    $('.fichevin').hide()
+
     let objectToSend = {id_vins: id_vins, id_membres: 'toto'}
 
     // differenciate logged in or not
@@ -26,8 +29,7 @@ $(document).ready(function() {
     }
 
     $.post('getFicheVin', objectToSend, function() {
-        $('.loader').show()
-        $('.fichevin').hide()
+        
     }).done(function(data) {
         $('.loader').hide()
         $('.fichevin').show()
@@ -51,6 +53,6 @@ $(document).ready(function() {
             containerWidth = $('#container').width()
             dimensions = dimensionnerImage($('#etiquette').width(), $('#etiquette').height(), containerWidth)
             $('#etiquette').css('width', dimensions.largeurImage + 'px').css('height', dimensions.hauteurImage + 'px')
-        }, 10)
+        }, 30)
     })
 })

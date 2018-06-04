@@ -24,21 +24,15 @@ $('.tabSousMenu').click(function() {
     couleur = tabToCouleurSingulier($('#onglets').find('a').index(this))
 
     $.post('/listegenerale', {couleur: couleur}, function() {
-        $('.loader').show()
+        $('#liste_des_vins_classes').hide()
+        $('#loader').show()
     }).done(function( data ) {
-        $('.loader').hide()
-
         // Get in shape the received datas
         $('#liste_des_vins_classes').html(affichageTri(data.liste_des_vins_classes))
-        $('#liste_des_vins_classes').ready(function() {
-            // Js has a bug, it needs to use setTime Out
-            setTimeout(function(){
-                $('.imageClassement').each(function() {
-                    dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
-                    $(this).css('width', dimensions.largeurImage + 'px').css('height', dimensions.hauteurImage + 'px')
-                })
-            },10)
-        })
+
+        // Trigger the resize function
+        $(window).resize()
+
     })
 })
 
@@ -55,10 +49,26 @@ $(document).ready(function() {
 /**********************Dynamic responsive pictures*******************************/
 window.onresize = function() {
     containerWidth = $('#container').width()
-    setTimeout(function(){
-        $('.imageClassement').each(function() {
-            dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
-            $(this).css('width', dimensions.largeurImage + 'px').css('height', dimensions.hauteurImage + 'px')
+    
+    var nbr_etiquettes = $('.imageClassement').length
+
+    // Case when there is no picture
+    if (nbr_etiquettes === 0) {
+        $('#loader').hide()
+        $('#liste_des_vins_classes').show()
+    }
+
+    // Case when there is at least one picture
+    $('.imageClassement').each(function(index) {
+        $(this).on('load', function(){
+            if (index === nbr_etiquettes - 1) {
+                $('#loader').hide()
+                $('#liste_des_vins_classes').show()
+                $('.imageClassement').each(function() {
+                    dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
+                    $(this).css('width', dimensions.largeurImage + 'px').css('height', dimensions.hauteurImage + 'px')
+                })
+            }
         })
-    },10)
+    })
 }
