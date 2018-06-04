@@ -182,7 +182,7 @@ app.post('/creationcompte', (request, response) => {
 
 // search in the db a wine folder differenciating logged in or not
 app.post('/getFicheVin', (request, response) => {
-    let fichevin = require('./models/ficheVin')
+    let fichevin = require('./models/fichevin')
     let id_membres = request.body.id_membres
     let id_vins = request.body.id_vins
 
@@ -208,7 +208,7 @@ app.post('/getFicheVin', (request, response) => {
 
 // insert a wine at its right place in the ranking
 app.post('/classerpesonnel', (request, response) => {
-    let fichevin = require('./models/ficheVin')
+    let fichevin = require('./models/fichevin')
     fichevin.ajouterAuClassementPersonnel(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (ce_genre_de_cb) => {
         fichevin.ajouterAuClassementGeneral(request.body.id_vins, request.body.id_membres, request.body.couleur, request.body.classements_personnels_vins, (cb) => {
             response.send({message: 'c\'est ok', cb1: ce_genre_de_cb, cb2: cb})
@@ -218,7 +218,7 @@ app.post('/classerpesonnel', (request, response) => {
 
 // look for the personal ranking for a chosen color
 app.post('/listepersonnelle', (request, response) => {
-    let fichevin = require('./models/ficheVin')
+    let fichevin = require('./models/fichevin')
     let couleur = request.body.couleur
     let id_membre = request.body.id_membre
     
@@ -233,7 +233,7 @@ app.post('/listepersonnelle', (request, response) => {
 
 // look for in the general ranking for a chosen color
 app.post('/listegenerale', (request, response) => {
-    let fichevin = require('./models/ficheVin')
+    let fichevin = require('./models/fichevin')
     let couleur = request.body.couleur
     
     fichevin.getListOfTheseWines(couleur, (ce_genre_de_cb) => {
