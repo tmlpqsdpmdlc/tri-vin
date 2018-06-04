@@ -53,6 +53,6 @@ $(document).ready(function() {
             containerWidth = $('#container').width()
             dimensions = dimensionnerImage($('#etiquette').width(), $('#etiquette').height(), containerWidth)
             $('#etiquette').css('width', dimensions.largeurImage + 'px').css('height', dimensions.hauteurImage + 'px')
-        }, 10)
+        }, 30)
     })
 })

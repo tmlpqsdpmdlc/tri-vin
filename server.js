@@ -28,7 +28,12 @@ app.get('/', (request, response) => {
 })
 
 app.get('/classement-personnel', (request, response) => { 
-    response.render('pages/classement-personnel', {titre: 'classement personnel', insertId: false, couleur: false, mode: 'consultation'})
+    let couleur = request.query.couleur
+    if (couleur === '' || couleur === undefined) {
+        couleur = false
+    }
+
+    response.render('pages/classement-personnel', {titre: 'classement personnel', insertId: false, couleur: couleur, mode: 'consultation'})
 })
 
 app.get('/insertion-vin', (request, response) => {
@@ -239,6 +244,5 @@ app.post('/listegenerale', (request, response) => {
         }
     })
 })
-
 
 app.listen(8080)

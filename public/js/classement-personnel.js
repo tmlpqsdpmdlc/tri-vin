@@ -32,24 +32,17 @@ $('.tabSousMenu').click(function() {
         $('.loader').show()
     }).done(function( data ) {
         
-
         // Get in shape the received datas
         $('#liste_des_vins_classes').html(affichageTri(data.liste_des_vins_classes))
-        $('#liste_des_vins_classes').ready(function() {
-            // Js has a bug, it needs to use setTime Out
-            setTimeout(function(){
-                $('.imageClassement').each(function() {
-                    dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
-                    $(this).css('width', dimensions.largeurImage + 'px').css('height', dimensions.hauteurImage + 'px')
-                    $('.loader').hide()
-                })
-            },10)
-        })
 
         // Display mode stuff
         // Get the pictures unclickable
         // Get the tabs unclickable
         if (mode === 'insert') {
+            $('.insert').show()
+            $('.consultation').hide()
+            $('.etiquette, .tabSousMenu').css('pointer-events', 'none')
+            $('.insert').css('pointer-events', 'auto')
 
             // Auto insertion of the first wine of the ranking
             if (data.liste_des_vins_classes.length === 0) {
@@ -58,13 +51,10 @@ $('.tabSousMenu').click(function() {
                     // Send the datas to the server
                 }).done(function(data) {
                     $('.active').click()
+                    // Trigger the resize function
+                    $(window).resize()
                 })
             }
-
-            $('.insert').show()
-            $('.consultation').hide()
-            $('.etiquette, .tabSousMenu').css('pointer-events', 'none')
-            $('.insert').css('pointer-events', 'auto')
         } else if (mode === 'consultation'){
             $('.insert').hide()
             $('.consultation').show()
@@ -72,9 +62,10 @@ $('.tabSousMenu').click(function() {
         } else {
             $('.insert').hide()
             $('.consultation').hide()
-            $('.etiquette, .tabSousMenu').css('pointer-events', 'auto')
+            $('.etiquette, .tabSousMenu').css('pointer-events', 'auto') 
         }
-
+        // Trigger the resize function
+        $(window).resize()
     })
 })
 
@@ -87,8 +78,8 @@ $(document).on('click', '.insert', function() {
         // Send the datas to the server
     }).done(function(data) {
         $('.active').click()
+        document.location.href = '/classement-personnel?couleur=' + couleur
     })
-
 })
 
 // Initiate the tabs and simulate a click for starting the ranking display
@@ -104,10 +95,26 @@ $(document).ready(function() {
 /**********************Images responsive dynamiquement*******************************/
 window.onresize = function() {
     containerWidth = $('#container').width()
-    setTimeout(function(){
-        $('.imageClassement').each(function() {
-            dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
-            $(this).css('width', dimensions.largeurImage + 'px').css('height', dimensions.hauteurImage + 'px')
+    
+    var nbr_etiquettes = $('.imageClassement').length
+
+    // Case when there is no picture
+    if (nbr_etiquettes === 0) {
+        $('#loader').hide()
+        $('#liste_des_vins_classes').show()
+    }
+
+    // Case when there is at least one picture
+    $('.imageClassement').each(function(index) {
+        $(this).on('load', function(){
+            if (index === nbr_etiquettes - 1) {
+                $('#loader').hide()
+                $('#liste_des_vins_classes').show()
+                $('.imageClassement').each(function() {
+                    dimensions = dimensionnerImage($(this).width(), $(this).height(), containerWidth)
+                    $(this).css('width', dimensions.largeurImage + 'px').css('height', dimensions.hauteurImage + 'px')
+                })
+            }
         })
-    },10)
+    })
 }
