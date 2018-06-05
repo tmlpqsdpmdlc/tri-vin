@@ -58,8 +58,14 @@
     </button>
 </div>
 
+<p id="couleurCachee" style="display: none;"><%= couleur %></p>
+
 <script src="/assets/js/dimensionner-image.js"></script>
 <script>
+    $(document).ready(function(){
+        $("#couleur").val($("#couleurCachee").text())
+    })
+
     // Handle the max date of the date input
     var today = new Date()
     var dd = today.getDate()

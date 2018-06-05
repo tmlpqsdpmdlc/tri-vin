@@ -37,7 +37,11 @@ app.get('/classement-personnel', (request, response) => {
 })
 
 app.get('/insertion-vin', (request, response) => {
-    response.render('pages/insertion-vin', {titre: 'insertion vin'})
+    let couleur = request.query.couleur
+    if (couleur === '' || couleur === undefined) {
+        couleur = false
+    }
+    response.render('pages/insertion-vin', {titre: 'insertion vin', couleur: couleur})
 })
 
 app.post('/insertion-vin', (request, response) => {

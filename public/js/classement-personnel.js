@@ -20,6 +20,11 @@ var id_vins = $('#insertId').text()
 var containerWidth = $('#container').width()
 var dimensions
 
+// Send to the insertion page
+$('#insertion-vin').click(function(){
+    document.location.href = '/insertion-vin?couleur=' + couleur
+})
+
 // Navigate between the tabs and start the loading of the personnal wine list
 $(document).ready(function() {
     $('.tabSousMenu').click(function() {
