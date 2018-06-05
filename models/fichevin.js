@@ -137,7 +137,6 @@ class FicheVin {
         })
     }
 
-    // Faire la liste de vin classée d'une couleur donnée pour un membre
     // Get the personnal list of wines ordered by ranking for one color
     static getPersonnalListOfTheseWines(couleur, id_membres, cb) {
         console.log('getPersonnalListOfTheseWines')
@@ -299,7 +298,7 @@ class FicheVin {
                     })
 
                     // Insert the real ranking
-                    nbr_de_matchs = results.length - 1
+                    nbr_de_matchs = vinCourant.nbr_de_matchs + results.length - 1
                     query += 'update vins set classement_general = ' + coteReelle + ',nbr_de_matchs = ' + nbr_de_matchs + ' where id_vins = ' + id_vins + ' ;'
                     connection.query(query, [], (error2, result2, fields2) => {
                         if (error2) throw error2
