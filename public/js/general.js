@@ -14,6 +14,10 @@ function removeAccents(str) {
     return str.join('');
 }
 
+function upperCase(str) {
+    return str.toUpperCase()
+}
+
 // Get the color at plural from the tab number
 function tabToCouleurPlurielle(tab) {
     if (tab === 0) {
