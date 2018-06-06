@@ -40,9 +40,10 @@ function validerFormulaire() {
     }
 }
 
-/**********************Gestion des inputs**********************/
+/**********************Handling the inputs**********************/
 $(document).ready(function(){
     $('#couleur').val($('#couleurCachee').text())
+    // Get the name of the wine in uppercase and without accents
     $('#nom').keyup(function(){
         $(this).val(upperCase(removeAccents($(this).val())))
     })
@@ -63,22 +64,21 @@ if (mm<10)
 } 
 
 today = yyyy+'-'+mm+'-'+dd
-document.getElementById("date_consommation").setAttribute("max", today)
+document.getElementById('date_consommation').setAttribute('max', today)
 
 // Display the user image
 var loadFile = (event) => {
-    var displayImage = document.getElementById("displayImage")
-    var containerWidth = document.getElementById("container").clientWidth
+    var displayImage = document.getElementById('displayImage')
+    var containerWidth = document.getElementById('container').clientWidth
 
     // Reset style in case of there is a new image
-    displayImage.style = ""
+    displayImage.style = ''
 
     displayImage.onload = function() {
         var largeurImage = displayImage.width
         var hauteurImage = displayImage.height
         var dimensionsImage = dimensionnerImage(largeurImage, hauteurImage, containerWidth)
-        displayImage.style = "width: " + dimensionsImage.largeurImage + "px; height: " + dimensionsImage.hauteurImage + "px; display: block;"
+        displayImage.style = 'width: ' + dimensionsImage.largeurImage + 'px; height: ' + dimensionsImage.hauteurImage + 'px; display: block;'
     }
     displayImage.src = URL.createObjectURL(event.target.files[0])
-    
 }
