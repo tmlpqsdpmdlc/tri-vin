@@ -39,3 +39,46 @@ function validerFormulaire() {
         alert(erreur)
     }
 }
+
+/**********************Gestion des inputs**********************/
+$(document).ready(function(){
+    $('#couleur').val($('#couleurCachee').text())
+    $('#nom').keyup(function(){
+        $(this).val(upperCase(removeAccents($(this).val())))
+    })
+})
+
+// Handle the max date of the date input
+var today = new Date()
+var dd = today.getDate()
+var mm = today.getMonth()+1
+var yyyy = today.getFullYear()
+if (dd<10)
+{
+    dd='0'+dd
+} 
+if (mm<10)
+{
+    mm='0'+mm
+} 
+
+today = yyyy+'-'+mm+'-'+dd
+document.getElementById("date_consommation").setAttribute("max", today)
+
+// Display the user image
+var loadFile = (event) => {
+    var displayImage = document.getElementById("displayImage")
+    var containerWidth = document.getElementById("container").clientWidth
+
+    // Reset style in case of there is a new image
+    displayImage.style = ""
+
+    displayImage.onload = function() {
+        var largeurImage = displayImage.width
+        var hauteurImage = displayImage.height
+        var dimensionsImage = dimensionnerImage(largeurImage, hauteurImage, containerWidth)
+        displayImage.style = "width: " + dimensionsImage.largeurImage + "px; height: " + dimensionsImage.hauteurImage + "px; display: block;"
+    }
+    displayImage.src = URL.createObjectURL(event.target.files[0])
+    
+}
