@@ -1,4 +1,4 @@
-var mysql      = require('mysql');
+var mysql      = require('mysql')
 var connection = mysql.createConnection({
     host     : process.env.MYSQL_ADDON_HOST,
     database : process.env.MYSQL_ADDON_DB,
@@ -8,6 +8,6 @@ var connection = mysql.createConnection({
     multipleStatements: true
 });
  
-connection.connect();
+connection.connect()
 
 module.exports = connection

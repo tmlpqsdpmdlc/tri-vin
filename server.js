@@ -44,7 +44,17 @@ app.get('/insertion-vin', (request, response) => {
     response.render('pages/insertion-vin', {titre: 'insertion vin', couleur: couleur})
 })
 
+app.get('/insertion-vin-part2', (request, response) => {
+    let titre = request.query.titre
+    let insertId = request.query.insertId
+    let couleur = request.query.couleur
+    let mode = request.query.mode
+    
+    response.render('pages/classement-personnel', {titre: titre, insertId: insertId, couleur: couleur, mode: mode})
+})
+
 app.post('/insertion-vin', (request, response) => {
+
     // Save datas from the form
     let nom = request.body.nom
     let millesime = request.body.millesime
@@ -52,6 +62,7 @@ app.post('/insertion-vin', (request, response) => {
     let date_consommation = request.body.date_consommation
     let commentaire_personnel = request.body.commentaire_personnel
     let id_membres = request.body.id_membres
+    let extensionImage = request.body.extensionImage
 
     // Check if this wine isn't already in the member ranking
     let ficheVin = require('./models/fichevin')
@@ -67,15 +78,15 @@ app.post('/insertion-vin', (request, response) => {
             let etiquette = __dirname + '/public/images/empty.png'
             ficheVin.insertionVin(nom, millesime, couleur, date_consommation, commentaire_personnel, etiquette, id_membres, (insertId) => {
                 // get the wine id and name the picture with it
-                etiquette = __dirname + '/public/images/' + insertId + path.extname(request.files.etiquette.name)
+                etiquette = __dirname + '/public/images/' + insertId + extensionImage
                 // write the picture with this name
-                request.files.etiquette.mv(etiquette, (erreur) => {
+                request.files.etiquetteRedimensionnee.mv(etiquette, (erreur) => {
                     if (erreur) throw erreur
                     // update the picture's name value in the db if it's not already there
-                    etiquette = 'assets/images/' + insertId + path.extname(request.files.etiquette.name)
+                    etiquette = 'assets/images/' + insertId + extensionImage
                     ficheVin.modifierValeurEtiquette(insertId, etiquette)
                     // locate towards the page classement-personnnel with the wine id to insert and the color of this wine
-                    response.render('pages/classement-personnel', {titre: 'classement personnel', insertId: insertId, couleur: couleur, mode: 'insert'})
+                    response.send({titre: 'classement personnel', insertId: insertId, couleur: couleur, mode: 'insert'})
                 })
             })
         }

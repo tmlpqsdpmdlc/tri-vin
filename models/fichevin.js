@@ -58,7 +58,7 @@ class FicheVin {
         + `select nom, millesime, couleur from vins where nom = ? and millesime = ? and couleur = ? `
         +  `) limit 1;`, 
         [nom, millesime, couleur, etiquette, nom, millesime, couleur], 
-        (error, result, fields) => {
+        (error, result) => {
             if (error) throw error
 
             let id_vins = result.insertId
@@ -66,7 +66,7 @@ class FicheVin {
             if (id_vins === 0 || id_vins === undefined) {
                 connection.query('select * from vins where nom like ? and millesime = ? and couleur like ?',
                     [nom, millesime, couleur],
-                    (error2, results2, fields2) => {
+                    (error2, results2) => {
                         if (error2) throw error2
                         id_vins = results2[0].id_vins
                         // Insertion of personnal datas
@@ -77,7 +77,7 @@ class FicheVin {
                         + `) `
                         + `limit 1;`,
                         [id_vins, id_membres, commentaire_personnel, date_consommation, id_vins, id_membres],
-                        (error3, results3, fields3) => {
+                        (error3) => {
                             if (error3) throw error3
                             cb(id_vins)
                         })
@@ -87,7 +87,7 @@ class FicheVin {
                 connection.query(`insert into classements_personnels_vins (id_vins, id_membres, commentaire_personnel, date_consommation) `
                     + `values (?, ?, ?, ?)`,
                 [id_vins, id_membres, commentaire_personnel, date_consommation],
-                (error2, result2, fields2) => {
+                (error2) => {
                     if (error2) throw error2
                     cb(id_vins)
                 })
@@ -98,10 +98,10 @@ class FicheVin {
     // update the label if it's not on empty
     static modifierValeurEtiquette(id_vins, etiquette) {
         console.log('modifierValeurEtiquette')
-        connection.query("select * from vins where id_vins = ? and etiquette like '%empty%'", [id_vins], (error, results, fields) => {
+        connection.query("select * from vins where id_vins = ? and etiquette like '%empty%'", [id_vins], (error, results) => {
             if (error) throw error
             if (results.length >= 1) {
-                connection.query('update vins set etiquette = ? where id_vins = ?', [etiquette, id_vins], (error2, result2, fields2) => {
+                connection.query('update vins set etiquette = ? where id_vins = ?', [etiquette, id_vins], (error2) => {
                     if (error2) throw error2
                 })
             }
@@ -116,14 +116,14 @@ class FicheVin {
             + `and millesime = ? `
             + `and couleur like ? ;`, 
         [nom, millesime, couleur], 
-        (error, results, fields) => {
+        (error, results) => {
             if (error) throw error
             if (results.length >= 1 )
             {
                 let id_vins = results[0].id_vins
                 connection.query('select * from classements_personnels_vins where id_membres = ? and id_vins = ? ;',
                     [id_membres, id_vins],
-                    (error2, results2, fields2) => {
+                    (error2, results2) => {
                         if (results2.length >= 1) {
                             cb('true')
                         } else {
@@ -146,7 +146,7 @@ class FicheVin {
             `where classements_personnels_vins.id_membres = ? and vins.couleur like ? and classements_personnels_vins.classements_personnels_vins is not null `+
             `order by classements_personnels_vins.classements_personnels_vins;`,
             [id_membres, couleur],
-            (error, results, fields) => {
+            (error, results) => {
                 if (error) throw error
                 // then, separate the received objects and put them in an array
                 let nbrResultats = results.length
@@ -166,7 +166,7 @@ class FicheVin {
     // Get the general ranking of a wine color
     static getListOfTheseWines(couleur, cb) {
         console.log('getListOfTheseWines')
-        connection.query('select * from vins where couleur like ? order by classement_general DESC', [couleur], (error, results, fields) => {
+        connection.query('select * from vins where couleur like ? order by classement_general DESC', [couleur], (error, results) => {
             if (error) throw error
             // then, separate the received objects and put them in an array
             let nbrResultats = results.length
@@ -193,7 +193,7 @@ class FicheVin {
             `where classements_personnels_vins.id_membres = ? and vins.couleur like ? `+
             `order by classements_personnels_vins.classements_personnels_vins;`,
             [id_membres, couleur],
-            (error, results, fields) => {
+            (error, results) => {
                 if (error) throw error
                 for(var i = 0 ; i < results.length ; i++) {
                     if (results[i].classements_personnels_vins >= classements_personnels_vins) {
@@ -201,7 +201,7 @@ class FicheVin {
                         let id_vin = results[i].id_vins
                         connection.query('update classements_personnels_vins set classements_personnels_vins = ? where id_vins = ? and id_membres = ? ', 
                             [nvoClassement, id_vin, id_membres], 
-                            (error2, results2, fields2) => {
+                            (error2) => {
                                 if (error2) throw error2
                             }
                         )
@@ -210,7 +210,7 @@ class FicheVin {
                 // Update its own rank
                 connection.query('update classements_personnels_vins set classements_personnels_vins = ? where id_vins = ? and id_membres = ? ', 
                     [classements_personnels_vins, id_vins, id_membres],
-                    (error2, results2, fields2) => {
+                    (error2) => {
                         if (error2) throw error2
                         cb('c\'est bat')
                     }
@@ -227,7 +227,7 @@ class FicheVin {
         + `where classements_personnels_vins.id_vins = ? and vins.id_vins = ? and classements_personnels_vins.id_membres = ? `
         + `limit 1;`, 
         [id_vins, id_vins, id_membres], 
-        (error, results, fields) => {
+        (error, results) => {
             if (error) throw error
             cb(results[0])
         })
@@ -236,7 +236,7 @@ class FicheVin {
     // Get informations relative to 1 wine with its id and not being logged in
     static getFicheVinWithIdNotBeingCo(id_vins, cb) {
         console.log('getFicheVinWithIdNotBeingCo')
-        connection.query('select * from vins where id_vins = ?', [id_vins], (error, results, fields) => {
+        connection.query('select * from vins where id_vins = ?', [id_vins], (error, results) => {
             if (error) throw error
             cb(results[0])
         })
@@ -261,7 +261,7 @@ class FicheVin {
             `where classements_personnels_vins.id_membres = ? and vins.couleur like ? and classements_personnels_vins.classements_personnels_vins is not null `+
             `order by classements_personnels_vins.classements_personnels_vins;`,
             [id_membres, couleur],
-            (error, results, fields) => {
+            (error, results) => {
                 if (error) throw error
                 if (results.length === 1) {
                     // No need to do a match if it's the only one
@@ -300,7 +300,7 @@ class FicheVin {
                     // Insert the real ranking
                     nbr_de_matchs = vinCourant.nbr_de_matchs + results.length - 1
                     query += 'update vins set classement_general = ' + coteReelle + ',nbr_de_matchs = ' + nbr_de_matchs + ' where id_vins = ' + id_vins + ' ;'
-                    connection.query(query, [], (error2, result2, fields2) => {
+                    connection.query(query, [], (error2) => {
                         if (error2) throw error2
                         cb('ayè c\'est dans la boite')
                     })
