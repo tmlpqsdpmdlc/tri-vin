@@ -1,4 +1,4 @@
-var mysql      = require('mysql');
+var mysql      = require('mysql')
 var connection = mysql.createConnection({
     host     : 'localhost',
     database : 'trivin',
@@ -8,6 +8,6 @@ var connection = mysql.createConnection({
     multipleStatements: true
 });
  
-connection.connect();
+connection.connect()
 
 module.exports = connection
