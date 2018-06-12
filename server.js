@@ -3,7 +3,7 @@ let app = require('express')()
 let bodyParser = require('body-parser')
 let session = require('express-session')
 let fileUpload = require('express-fileupload')
-let path = require('path')
+let poster = require('poster')
 
 // Template engine
 app.set('view engine', 'ejs')
@@ -85,6 +85,25 @@ app.post('/insertion-vin', (request, response) => {
                     // update the picture's name value in the db if it's not already there
                     etiquette = 'assets/images/' + insertId + extensionImage
                     ficheVin.modifierValeurEtiquette(insertId, etiquette)
+
+
+                    // send a backup image to an other server
+                    var options = {
+                        uploadUrl: 'http://strategie-tt.fr/tri-vin/get-image.php',
+                        method: 'POST',
+                        fileId: 'file'
+                    }
+
+                    poster.post(__dirname + '/public/images/' + insertId + extensionImage, options, function(err, data) {
+                        if (!err) {
+                            console.log('succes', data)
+                        } else {
+                            console.log('erreur', err)
+                        }
+                    })
+
+
+
                     // locate towards the page classement-personnnel with the wine id to insert and the color of this wine
                     response.send({titre: 'classement personnel', insertId: insertId, couleur: couleur, mode: 'insert'})
                 })
